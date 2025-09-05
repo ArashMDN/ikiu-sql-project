@@ -1,12 +1,5 @@
 export const sqlTopicsData = [
   {
-    id: "learning-resources",
-    title: "Learning Resources",
-    icon: "📚",
-    type: "section",
-    children: [],
-  },
-  {
     id: "query-basics",
     title: "Query Basics",
     icon: "🔍",
@@ -142,12 +135,5 @@ export const sqlTopicsData = [
       { id: "auto-increment", title: "Auto Increment", type: "topic" },
       { id: "index", title: "Index", type: "topic" },
     ],
-  },
-  {
-    id: "partnership",
-    title: "Partnership",
-    icon: "🤝",
-    type: "section",
-    children: [],
   },
 ];
