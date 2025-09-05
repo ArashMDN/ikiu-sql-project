@@ -1,0 +1,30 @@
+{
+  "name": "ikiu-sql-project",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build --turbopack",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.86.0",
+    "antd": "^5.27.3",
+    "axios": "^1.11.0",
+    "next": "15.5.2",
+    "next13-progressbar": "^1.2.2",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-spinners": "^0.17.0",
+    "react-toastify": "^11.0.5",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.2",
+    "tailwindcss": "^4"
+  }
+}
