@@ -1,0 +1,377 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ========================================
+// DATABASE 1: E-COMMERCE SYSTEM
+// ========================================
+
+model Customer {
+  id          Int      @id @default(autoincrement())
+  firstName   String
+  lastName    String
+  email       String   @unique
+  phone       String?
+  address     String?
+  city        String?
+  country     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  orders      Order[]
+  reviews     Review[]
+  
+  @@map("customers")
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  
+  products    Product[]
+  
+  @@map("categories")
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  stock       Int      @default(0)
+  categoryId  Int
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  category    Category @relation(fields: [categoryId], references: [id])
+  orderItems  OrderItem[]
+  reviews     Review[]
+  
+  @@map("products")
+}
+
+model Order {
+  id          Int       @id @default(autoincrement())
+  customerId  Int
+  orderDate   DateTime  @default(now())
+  status      String    @default("pending") // pending, processing, shipped, delivered, cancelled
+  totalAmount Float
+  shippingAddress String?
+  
+  customer    Customer  @relation(fields: [customerId], references: [id])
+  orderItems  OrderItem[]
+  
+  @@map("orders")
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  price     Float
+  
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+  
+  @@map("order_items")
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  customerId Int
+  productId  Int
+  rating     Int      // 1-5 stars
+  comment    String?
+  createdAt  DateTime @default(now())
+  
+  customer   Customer @relation(fields: [customerId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id])
+  
+  @@map("reviews")
+}
+
+// ========================================
+// DATABASE 2: SCHOOL MANAGEMENT SYSTEM
+// ========================================
+
+model Student {
+  id          Int      @id @default(autoincrement())
+  studentId   String   @unique
+  firstName   String
+  lastName    String
+  email       String   @unique
+  phone       String?
+  birthDate   DateTime
+  address     String?
+  enrollmentDate DateTime @default(now())
+  status      String   @default("active") // active, inactive, graduated
+  
+  enrollments Enrollment[]
+  grades      Grade[]
+  
+  @@map("students")
+}
+
+model Teacher {
+  id          Int      @id @default(autoincrement())
+  teacherId   String   @unique
+  firstName   String
+  lastName    String
+  email       String   @unique
+  phone       String?
+  department  String
+  salary      Float?
+  hireDate    DateTime @default(now())
+  
+  courses     Course[]
+  grades      Grade[]
+  
+  @@map("teachers")
+}
+
+model Course {
+  id          Int      @id @default(autoincrement())
+  courseCode  String   @unique
+  courseName  String
+  description String?
+  credits     Int
+  teacherId   Int
+  semester    String   // Fall, Spring, Summer
+  year        Int
+  maxStudents Int      @default(30)
+  
+  teacher     Teacher  @relation(fields: [teacherId], references: [id])
+  enrollments Enrollment[]
+  grades      Grade[]
+  
+  @@map("courses")
+}
+
+model Enrollment {
+  id         Int      @id @default(autoincrement())
+  studentId  Int
+  courseId   Int
+  enrollDate DateTime @default(now())
+  status     String   @default("enrolled") // enrolled, dropped, completed
+  
+  student    Student  @relation(fields: [studentId], references: [id])
+  course     Course   @relation(fields: [courseId], references: [id])
+  
+  @@unique([studentId, courseId])
+  @@map("enrollments")
+}
+
+model Grade {
+  id         Int      @id @default(autoincrement())
+  studentId  Int
+  courseId   Int
+  teacherId  Int
+  examType   String   // midterm, final, quiz, assignment
+  score      Float
+  maxScore   Float
+  gradeDate  DateTime @default(now())
+  
+  student    Student  @relation(fields: [studentId], references: [id])
+  course     Course   @relation(fields: [courseId], references: [id])
+  teacher    Teacher  @relation(fields: [teacherId], references: [id])
+  
+  @@map("grades")
+}
+
+// ========================================
+// DATABASE 3: LIBRARY MANAGEMENT SYSTEM
+// ========================================
+
+model Author {
+  id          Int      @id @default(autoincrement())
+  firstName   String
+  lastName    String
+  birthDate   DateTime?
+  nationality String?
+  biography   String?
+  
+  books       BookAuthor[]
+  
+  @@map("authors")
+}
+
+model Publisher {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  address     String?
+  phone       String?
+  email       String?
+  website     String?
+  
+  books       Book[]
+  
+  @@map("publishers")
+}
+
+model Book {
+  id          Int      @id @default(autoincrement())
+  isbn        String   @unique
+  title       String
+  description String?
+  publisherId Int
+  publishDate DateTime?
+  pages       Int?
+  language    String   @default("فارسی")
+  genre       String?
+  totalCopies Int      @default(1)
+  availableCopies Int  @default(1)
+  
+  publisher   Publisher @relation(fields: [publisherId], references: [id])
+  authors     BookAuthor[]
+  loans       Loan[]
+  
+  @@map("books")
+}
+
+model BookAuthor {
+  bookId    Int
+  authorId  Int
+  
+  book      Book   @relation(fields: [bookId], references: [id])
+  author    Author @relation(fields: [authorId], references: [id])
+  
+  @@id([bookId, authorId])
+  @@map("book_authors")
+}
+
+model Member {
+  id          Int      @id @default(autoincrement())
+  memberId    String   @unique
+  firstName   String
+  lastName    String
+  email       String   @unique
+  phone       String?
+  address     String?
+  membershipDate DateTime @default(now())
+  membershipType String @default("regular") // regular, premium, student
+  status      String   @default("active") // active, suspended, expired
+  
+  loans       Loan[]
+  
+  @@map("members")
+}
+
+model Loan {
+  id          Int      @id @default(autoincrement())
+  memberId    Int
+  bookId      Int
+  loanDate    DateTime @default(now())
+  dueDate     DateTime
+  returnDate  DateTime?
+  fine        Float?
+  status      String   @default("active") // active, returned, overdue
+  
+  member      Member   @relation(fields: [memberId], references: [id])
+  book        Book     @relation(fields: [bookId], references: [id])
+  
+  @@map("loans")
+}
+
+// ========================================
+// DATABASE 4: COMPANY RELATIONAL DATABASE (Based on Standard Model)
+// ========================================
+
+model EMPLOYEE {
+  Ssn         String    @id
+  Fname       String
+  Minit       String?
+  Lname       String
+  Bdate       DateTime?
+  Address     String?
+  Sex         String?   // M or F
+  Salary      Float?
+  Super_ssn   String?
+  Dno         Int?
+  
+  // Relations
+  supervisor  EMPLOYEE? @relation("SupervisorEmployee", fields: [Super_ssn], references: [Ssn])
+  supervisees EMPLOYEE[] @relation("SupervisorEmployee")
+  department  DEPARTMENT? @relation(fields: [Dno], references: [Dnumber])
+  works_on    WORKS_ON[]
+  dependents  DEPENDENT[]
+  
+  @@map("EMPLOYEE")
+}
+
+model DEPARTMENT {
+  Dname           String
+  Dnumber         Int       @id
+  Mgr_ssn         String
+  Mgr_start_date  DateTime
+  
+  // Relations
+  employees       EMPLOYEE[]
+  projects        PROJECT[]
+  dept_locations  DEPT_LOCATIONS[]
+  
+  @@map("DEPARTMENT")
+}
+
+model DEPT_LOCATIONS {
+  Dnumber    Int
+  Dlocation  String
+  
+  department DEPARTMENT @relation(fields: [Dnumber], references: [Dnumber])
+  
+  @@id([Dnumber, Dlocation])
+  @@map("DEPT_LOCATIONS")
+}
+
+model PROJECT {
+  Pname      String
+  Pnumber    Int       @id
+  Plocation  String?
+  Dnum       Int
+  
+  // Relations
+  department DEPARTMENT @relation(fields: [Dnum], references: [Dnumber])
+  works_on   WORKS_ON[]
+  
+  @@map("PROJECT")
+}
+
+model WORKS_ON {
+  Essn   String
+  Pno    Int
+  Hours  Float?
+  
+  // Relations
+  employee EMPLOYEE @relation(fields: [Essn], references: [Ssn])
+  project  PROJECT  @relation(fields: [Pno], references: [Pnumber])
+  
+  @@id([Essn, Pno])
+  @@map("WORKS_ON")
+}
+
+model DEPENDENT {
+  Essn            String
+  Dependent_name  String
+  Sex             String?
+  Bdate           DateTime?
+  Relationship    String?
+  
+  // Relations
+  employee        EMPLOYEE @relation(fields: [Essn], references: [Ssn])
+  
+  @@id([Essn, Dependent_name])
+  @@map("DEPENDENT")
+}

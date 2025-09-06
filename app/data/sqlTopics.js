@@ -1,5 +1,19 @@
 export const sqlTopicsData = [
   {
+    id: "practice",
+    title: "محیط تمرین",
+    icon: "💻",
+    type: "special",
+    children: [],
+  },
+  {
+    id: "home",
+    title: "صفحه اصلی",
+    icon: "🏠",
+    type: "special",
+    children: [],
+  },
+  {
     id: "query-basics",
     title: "Query Basics",
     icon: "🔍",

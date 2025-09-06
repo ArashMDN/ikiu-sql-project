@@ -37,6 +37,17 @@ export default function Home() {
             </p>
           </div>
         </div>
+        <div className="mt-8 text-center">
+          <a
+            href="/practice"
+            className="inline-flex items-center px-6 py-3 text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-lg transition-colors duration-200"
+          >
+            💻 شروع تمرین SQL
+          </a>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
+            روی دیتابیس‌های واقعی تمرین کنید و مهارت خود را تقویت کنید
+          </p>
+        </div>
       </div>
     </MainLayout>
   );

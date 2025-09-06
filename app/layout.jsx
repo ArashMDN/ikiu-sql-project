@@ -61,7 +61,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="fa" dir="rtl" className="dark ">
       <body
-        className={` h-full  bg-white dark:bg-dark-800  w-screen relative font-[500] overflow-x-hidden`}
+        className={` h-full  bg-gray-50 dark:bg-gray-900 w-screen relative font-[500] overflow-x-hidden`}
       >
         <Providers>
           <StyledComponentsRegistry>

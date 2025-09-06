@@ -11,13 +11,18 @@ import {
   TeamOutlined,
   RightOutlined,
   DownOutlined,
+  DatabaseOutlined,
+  HomeOutlined,
 } from "@ant-design/icons";
 import { sqlTopicsData } from "../../data/sqlTopics";
 import styles from "./SQLSidebar.module.css";
+import SQLLearningModal from "../SQLLearningModal";
 
 const { Sider } = Layout;
 
 const iconMap = {
+  "💻": <DatabaseOutlined />,
+  "🏠": <HomeOutlined />,
   "📚": <BookOutlined />,
   "🔍": <SearchOutlined />,
   "🔽": <FilterOutlined />,
@@ -29,6 +34,8 @@ const iconMap = {
 const SQLSidebar = ({ collapsed, onCollapse }) => {
   const [openKeys, setOpenKeys] = useState(["query-basics", "functions"]);
   const [selectedKeys, setSelectedKeys] = useState(["select-statement"]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTopic, setModalTopic] = useState(null);
 
   const onOpenChange = (keys) => {
     setOpenKeys(keys);
@@ -36,12 +43,99 @@ const SQLSidebar = ({ collapsed, onCollapse }) => {
 
   const onClick = ({ key }) => {
     setSelectedKeys([key]);
-    // Handle navigation here
-    console.log("Selected:", key);
+
+    // Handle navigation
+    if (key === "practice") {
+      window.location.href = "/practice";
+    } else if (key === "home") {
+      window.location.href = "/";
+    } else {
+      // Show learning modal for SQL statements
+      const learningTopics = [
+        // Basic SQL Statements
+        "select-statement",
+        "insert-statement",
+        "update-statement",
+        "delete-statement",
+        "where-clause",
+        // Query Filtering
+        "operators",
+        "order-by",
+        "like",
+        "in",
+        "between",
+        "join",
+        "union",
+        "group-by",
+        "having",
+        "case",
+        "distinct",
+        "exists",
+        "any-all",
+        "ifnull",
+        "null-values",
+        "aliases",
+        // Functions - Aggregate
+        "count",
+        "avg",
+        "sum",
+        "max",
+        "min",
+        // Functions - Window
+        "window-function-basics",
+        "lag",
+        "lead",
+        "first-value",
+        "last-value",
+        // Functions - String
+        "concat",
+        "len",
+        "upper",
+        "lower",
+        // Functions - Numeric
+        "rand",
+        "round",
+        "floor",
+        "ceil",
+        // Functions - Date
+        "current-timestamp",
+        "year",
+        "month",
+        "day",
+        // Tables
+        "datatypes",
+        "create-table",
+        "drop-table",
+        "alter-table",
+        "constraints",
+        "not-null",
+        "unique",
+        "primary-key",
+        "foreign-key",
+        "check",
+        "default",
+        "auto-increment",
+        "index",
+      ];
+      if (learningTopics.includes(key)) {
+        setModalTopic(key);
+        setModalOpen(true);
+      } else {
+        console.log("Selected topic:", key);
+      }
+    }
   };
 
   const generateMenuItems = (items) => {
     return items.map((item) => {
+      if (item.type === "special") {
+        return {
+          key: item.id,
+          icon: iconMap[item.icon],
+          label: item.title,
+        };
+      }
+
       if (item.type === "section") {
         return {
           key: item.id,
@@ -140,6 +234,13 @@ const SQLSidebar = ({ collapsed, onCollapse }) => {
           />
         </div>
       </div>
+
+      {/* Learning Modal */}
+      <SQLLearningModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        topic={modalTopic}
+      />
     </Sider>
   );
 };
