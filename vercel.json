@@ -1,0 +1,12 @@
+{
+  "build": {
+    "env": {
+      "DATABASE_URL": "file:./dev.db"
+    }
+  },
+  "functions": {
+    "app/api/**/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  }
+}
