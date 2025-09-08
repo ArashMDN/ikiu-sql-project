@@ -48,6 +48,7 @@ const SQLPracticeInterface = () => {
   const [userQuery, setUserQuery] = useState("");
   const [queryResult, setQueryResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [showHints, setShowHints] = useState(false);
   const [currentHintIndex, setCurrentHintIndex] = useState(0);
   const [showSolution, setShowSolution] = useState(false);
@@ -55,6 +56,17 @@ const SQLPracticeInterface = () => {
   const [completedQuestions, setCompletedQuestions] = useState(new Set());
   const [userProgress, setUserProgress] = useState({});
   const [executionTime, setExecutionTime] = useState(null);
+
+  // Check if screen is mobile
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
 
   // Get current question
   const currentQuestions =
@@ -435,7 +447,7 @@ const SQLPracticeInterface = () => {
 
   return (
     <div
-      className={`p-4 min-h-screen flex flex-col gap-2 items-center justify-start w-full transition-all duration-300 ease-in-out `}
+      className={`p-2 md:p-4 min-h-screen flex flex-col gap-2 items-center justify-start w-full max-w-full mx-auto transition-all duration-300 ease-in-out`}
     >
       {/* Header Controls */}
       <Card
@@ -446,69 +458,84 @@ const SQLPracticeInterface = () => {
         }`}
       >
         <Row gutter={[16, 16]} align="middle">
-          <Col xs={24} sm={12} md={6}>
-            <Space direction="vertical" style={{ width: "100%" }}>
-              <Text strong>انتخاب دیتابیس:</Text>
+          <Col xs={24} sm={24} md={8}>
+            <Space direction="vertical" style={{ width: "100%" }} size="small">
+              <Text strong className="text-sm">
+                انتخاب دیتابیس:
+              </Text>
               <Select
                 value={selectedDatabase}
                 onChange={setSelectedDatabase}
                 style={{ width: "100%" }}
-                size="large"
+                size={isMobile ? "middle" : "large"}
                 className="rounded-xl transition-all duration-300 ease-in-out hover:shadow-lg"
               >
                 {Object.entries(practiceQuestions).map(([key, db]) => (
                   <Option key={key} value={key}>
                     <Space>
                       <DatabaseOutlined />
-                      {db.name}
+                      <span className="text-xs sm:text-sm">{db.name}</span>
                     </Space>
                   </Option>
                 ))}
               </Select>
             </Space>
           </Col>
-          <Col xs={24} sm={12} md={4}>
-            <Space direction="vertical" style={{ width: "100%" }}>
-              <Text strong>راهنمای دیتابیس:</Text>
+
+          <Col xs={24} sm={12} md={8}>
+            <Space direction="vertical" style={{ width: "100%" }} size="small">
+              <Text strong className="text-sm">
+                سطح دشواری:
+              </Text>
+              <Select
+                value={selectedDifficulty}
+                onChange={setSelectedDifficulty}
+                style={{ width: "100%" }}
+                size={isMobile ? "middle" : "large"}
+                className="rounded-xl transition-all duration-300 ease-in-out hover:shadow-lg"
+              >
+                <Option value="beginner">
+                  <Tag color="green" className="text-xs">
+                    مبتدی
+                  </Tag>
+                </Option>
+                <Option value="intermediate">
+                  <Tag color="orange" className="text-xs">
+                    متوسط
+                  </Tag>
+                </Option>
+                <Option value="advanced">
+                  <Tag color="red" className="text-xs">
+                    پیشرفته
+                  </Tag>
+                </Option>
+              </Select>
+            </Space>
+          </Col>
+
+          <Col xs={24} sm={12} md={8}>
+            <Space direction="vertical" style={{ width: "100%" }} size="small">
+              <Text strong className="text-sm">
+                راهنمای دیتابیس:
+              </Text>
               <Button
                 icon={<DatabaseOutlined />}
                 onClick={() => setShowDatabaseSchema(true)}
-                size="large"
+                size={isMobile ? "middle" : "large"}
                 style={{ width: "100%" }}
-                className="bg-gradient-to-r from-teal-500 to-green-600 border-none text-white font-semibold rounded-lg transition-all duration-300 ease-in-out shadow-teal-200/20 hover:from-teal-400 hover:to-green-500 hover:-translate-y-0.5 hover:shadow-teal-200/30"
+                className="bg-gradient-to-r from-teal-500 to-green-600 border-none text-white font-semibold rounded-lg transition-all duration-300 ease-in-out shadow-teal-200/20 hover:from-teal-400 hover:to-green-500 hover:-translate-y-0.5 hover:shadow-teal-200/30 text-xs sm:text-sm"
               >
                 مشاهده جداول
               </Button>
             </Space>
           </Col>
-
-          <Col xs={24} sm={12} md={6}>
-            <Space direction="vertical" style={{ width: "100%" }}>
-              <Text strong>سطح دشواری:</Text>
-              <Select
-                value={selectedDifficulty}
-                onChange={setSelectedDifficulty}
-                style={{ width: "100%" }}
-                size="large"
-                className="rounded-xl transition-all duration-300 ease-in-out hover:shadow-lg"
-              >
-                <Option value="beginner">
-                  <Tag color="green">مبتدی</Tag>
-                </Option>
-                <Option value="intermediate">
-                  <Tag color="orange">متوسط</Tag>
-                </Option>
-                <Option value="advanced">
-                  <Tag color="red">پیشرفته</Tag>
-                </Option>
-              </Select>
-            </Space>
-          </Col>
         </Row>
-        <Row gutter={[16, 16]} align="middle" className="mt-4">
-          <Col xs={24} sm={12} md={8}>
-            <Space direction="vertical" style={{ width: "100%" }}>
-              <Text strong>پیشرفت کلی:</Text>
+        <Row gutter={[16, 16]} align="middle" className="mt-3">
+          <Col xs={24} sm={24} md={8}>
+            <Space direction="vertical" style={{ width: "100%" }} size="small">
+              <Text strong className="text-sm">
+                پیشرفت کلی:
+              </Text>
               <Progress
                 percent={Math.round(progressPercentage)}
                 status="active"
@@ -517,9 +544,10 @@ const SQLPracticeInterface = () => {
                   to: "#764ba2",
                 }}
                 format={() => `${completedCount}/${totalQuestions}`}
-                className={`rounded-xl !w-full !p-2 overflow-hidden  ${
+                className={`rounded-xl !w-full !p-1 sm:!p-2 overflow-hidden ${
                   isDarkMode ? "bg-black/30" : "bg-white/30"
                 }`}
+                size={isMobile ? "small" : "default"}
               />
             </Space>
           </Col>
@@ -534,54 +562,81 @@ const SQLPracticeInterface = () => {
             : "bg-white/95 border-white/20 shadow-black/10 hover:shadow-black/15"
         }`}
         title={
-          <Space>
-            <Badge
-              count={currentQuestionIndex + 1}
-              className="rounded-xl  border-none font-semibold"
-              style={{
-                backgroundColor: completedQuestions.has(currentQuestion.id)
-                  ? "#52c41a"
-                  : undefined,
-              }}
-            />
-            <Title level={4} style={{ margin: 0 }}>
-              {currentQuestion.title}
-            </Title>
-            <Tag
-              color={getDifficultyColor(currentQuestion.difficulty)}
-              className="rounded-full font-semibold px-3 py-1 transition-all duration-300 ease-in-out"
-            >
-              {getDifficultyText(currentQuestion.difficulty)}
-            </Tag>
-            <Tag className="rounded-full font-semibold px-3 py-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-none">
-              <TrophyOutlined /> {currentQuestion.points} امتیاز
-            </Tag>
-            {completedQuestions.has(currentQuestion.id) && (
-              <Tag className="rounded-full font-semibold bg-gradient-to-r from-green-400 to-green-300 text-white animate-pulse">
-                <CheckCircleOutlined /> تکمیل شده
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-2">
+              <Badge
+                count={currentQuestionIndex + 1}
+                className="rounded-xl border-none font-semibold"
+                style={{
+                  backgroundColor: completedQuestions.has(currentQuestion.id)
+                    ? "#52c41a"
+                    : undefined,
+                }}
+              />
+              <Title
+                level={4}
+                style={{ margin: 0 }}
+                className="text-sm sm:text-base"
+              >
+                {currentQuestion.title}
+              </Title>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <Tag
+                color={getDifficultyColor(currentQuestion.difficulty)}
+                className="rounded-full font-semibold px-2 sm:px-3 py-1 transition-all duration-300 ease-in-out text-xs sm:text-sm"
+              >
+                {getDifficultyText(currentQuestion.difficulty)}
               </Tag>
-            )}
-          </Space>
+              <Tag className="rounded-full font-semibold px-2 sm:px-3 py-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-none text-xs sm:text-sm">
+                <TrophyOutlined /> {currentQuestion.points} امتیاز
+              </Tag>
+              {completedQuestions.has(currentQuestion.id) && (
+                <Tag className="rounded-full font-semibold bg-gradient-to-r from-green-400 to-green-300 text-white animate-pulse text-xs sm:text-sm">
+                  <CheckCircleOutlined /> تکمیل شده
+                </Tag>
+              )}
+            </div>
+          </div>
         }
         extra={
-          <Space>
-            <Button
-              icon={<BulbOutlined />}
-              onClick={() => setShowHints(true)}
-              size="small"
-              className="rounded-full transition-all duration-300 ease-in-out bg-gradient-to-r from-pink-500 to-red-500 border-none text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-pink-500/40"
-            >
-              راهنمایی
-            </Button>
-            <Button
-              icon={<EyeOutlined />}
-              onClick={() => setShowSolution(true)}
-              size="small"
-              className="rounded-full transition-all duration-300 ease-in-out bg-gradient-to-r from-blue-500 to-cyan-500 border-none text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/40"
-            >
-              مشاهده جواب
-            </Button>
-          </Space>
+          <div className="flex gap-1 sm:gap-2">
+            {/* Mobile Layout - Icon Only */}
+            <div className="flex sm:hidden gap-1">
+              <Button
+                icon={<BulbOutlined />}
+                onClick={() => setShowHints(true)}
+                size="small"
+                className="rounded-full transition-all duration-300 ease-in-out bg-gradient-to-r from-pink-500 to-red-500 border-none text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-pink-500/40 w-8 h-8 p-0 flex items-center justify-center"
+              />
+              <Button
+                icon={<EyeOutlined />}
+                onClick={() => setShowSolution(true)}
+                size="small"
+                className="rounded-full transition-all duration-300 ease-in-out bg-gradient-to-r from-blue-500 to-cyan-500 border-none text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/40 w-8 h-8 p-0 flex items-center justify-center"
+              />
+            </div>
+
+            {/* Desktop Layout - With Text */}
+            <div className="hidden sm:flex gap-2">
+              <Button
+                icon={<BulbOutlined />}
+                onClick={() => setShowHints(true)}
+                size="small"
+                className="rounded-full transition-all duration-300 ease-in-out bg-gradient-to-r from-pink-500 to-red-500 border-none text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-pink-500/40 text-xs px-3"
+              >
+                راهنما
+              </Button>
+              <Button
+                icon={<EyeOutlined />}
+                onClick={() => setShowSolution(true)}
+                size="small"
+                className="rounded-full transition-all duration-300 ease-in-out bg-gradient-to-r from-blue-500 to-cyan-500 border-none text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/40 text-xs px-3"
+              >
+                جواب
+              </Button>
+            </div>
+          </div>
         }
       >
         <Paragraph>{currentQuestion.description}</Paragraph>
@@ -615,15 +670,15 @@ const SQLPracticeInterface = () => {
         }`}
       >
         <TextArea
-          rows={8}
+          rows={6}
           value={userQuery}
           onChange={(e) => setUserQuery(e.target.value)}
           placeholder="-- کوئری SQL خود را اینجا بنویسید
 SELECT * FROM table_name;"
-          className="font-mono text-sm"
+          className="font-mono text-xs sm:text-sm sql-textarea"
           style={{
             fontFamily: 'Monaco, "Courier New", monospace',
-            fontSize: "14px",
+            fontSize: "12px",
             lineHeight: "1.5",
             resize: "vertical",
             direction: "ltr",
@@ -631,14 +686,14 @@ SELECT * FROM table_name;"
           }}
         />
 
-        <div style={{ marginTop: 16, textAlign: "center" }}>
-          <Space wrap>
+        <div className="mt-4 text-center">
+          <div className="flex flex-wrap gap-2 justify-center items-center">
             <Button
-              size="large"
+              size={isMobile ? "middle" : "large"}
               icon={<PlayCircleOutlined />}
               onClick={executeQuery}
               loading={isLoading}
-              className="rounded-full transition-all duration-300 ease-in-out bg-gradient-to-r from-indigo-500 to-purple-600 border-none text-white font-semibold text-base h-12 px-8 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/40 disabled:opacity-70 disabled:transform-none"
+              className="rounded-full transition-all duration-300 ease-in-out bg-gradient-to-r from-indigo-500 to-purple-600 border-none text-white font-semibold text-sm h-10 px-6 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/40 disabled:opacity-70 disabled:transform-none"
             >
               اجرای کوئری
             </Button>
@@ -655,34 +710,38 @@ SELECT * FROM table_name;"
                     : "employees";
                 setUserQuery(`SELECT * FROM ${tableName} LIMIT 10;`);
               }}
-              className="bg-gradient-to-r from-orange-500 to-yellow-500 border-none text-white font-semibold rounded-lg transition-all duration-300 ease-in-out shadow-orange-200/20 hover:from-orange-400 hover:to-yellow-400 hover:-translate-y-0.5 hover:shadow-orange-200/30"
+              size={isMobile ? "small" : "middle"}
+              className="bg-gradient-to-r from-orange-500 to-yellow-500 border-none text-white font-semibold rounded-lg transition-all duration-300 ease-in-out shadow-orange-200/20 hover:from-orange-400 hover:to-yellow-400 hover:-translate-y-0.5 hover:shadow-orange-200/30 text-xs sm:text-sm px-3 h-8 sm:h-9"
             >
-              نمونه کوئری
+              نمونه
             </Button>
 
             <Button
               onClick={() => setUserQuery("")}
-              className="bg-gradient-to-r from-red-500 to-red-600 border-none text-white font-semibold rounded-lg transition-all duration-300 ease-in-out shadow-red-200/20 hover:from-red-400 hover:to-red-500 hover:-translate-y-0.5 hover:shadow-red-200/30"
+              size={isMobile ? "small" : "middle"}
+              className="bg-gradient-to-r from-red-500 to-red-600 border-none text-white font-semibold rounded-lg transition-all duration-300 ease-in-out shadow-red-200/20 hover:from-red-400 hover:to-red-500 hover:-translate-y-0.5 hover:shadow-red-200/30 text-xs sm:text-sm px-3 h-8 sm:h-9"
             >
-              پاک کردن
+              پاک
             </Button>
 
             <Button
               onClick={prevQuestion}
               disabled={currentQuestionIndex === 0}
-              className="rounded-xl transition-all duration-300 ease-in-out h-10 hover:-translate-y-0.5"
+              size={isMobile ? "small" : "middle"}
+              className="rounded-xl transition-all duration-300 ease-in-out hover:-translate-y-0.5 text-xs sm:text-sm px-3 h-8 sm:h-9"
             >
-              سوال قبلی
+              قبلی
             </Button>
 
             <Button
               onClick={nextQuestion}
               disabled={currentQuestionIndex === currentQuestions.length - 1}
-              className="rounded-xl transition-all duration-300 ease-in-out h-10 hover:-translate-y-0.5"
+              size={isMobile ? "small" : "middle"}
+              className="rounded-xl transition-all duration-300 ease-in-out hover:-translate-y-0.5 text-xs sm:text-sm px-3 h-8 sm:h-9"
             >
-              سوال بعدی
+              بعدی
             </Button>
-          </Space>
+          </div>
         </div>
       </Card>
 

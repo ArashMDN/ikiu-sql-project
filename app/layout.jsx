@@ -21,6 +21,11 @@ export const metadata = {
   other: {
     ["color-scheme"]: "light dark",
   },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+  },
 };
 export const yekan = localFont({
   src: [
@@ -62,7 +67,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="fa" dir="rtl" className="dark ">
       <body
-        className={` h-full  bg-gray-50 dark:bg-[#0e1319] w-screen relative font-[500] overflow-x-hidden`}
+        className={` h-full bg-gray-50 dark:bg-[#0e1319] w-full relative font-[500] overflow-x-hidden`}
         suppressHydrationWarning={true}
       >
         <Providers>
@@ -71,7 +76,7 @@ export default function RootLayout({ children }) {
               {/* <Layout> */}
               <ToastWrapper font={yekan.className}>
                 <div
-                  className={`${yekan.className}  w-full flex flex-col  h-fit xl:mr-auto  `}
+                  className={`${yekan.className} w-full flex flex-col h-fit`}
                 >
                   {/* <BlobColors /> */}
                   <Provider>{children}</Provider>

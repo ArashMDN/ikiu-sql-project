@@ -9,7 +9,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #0e1319;
     --foreground: #ededed;
   }
 }
@@ -27,7 +27,7 @@ body {
 
 /* Custom dark theme classes */
 .dark {
-  --background: #0a0a0a;
+  --background: #0e1319;
   --foreground: #ededed;
 }
 
@@ -105,4 +105,224 @@ body {
 
 .sql-sidebar .ant-layout-sider-children::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  /* SQL Textarea responsive font size */
+  .sql-textarea {
+    font-size: 12px !important;
+  }
+
+  /* Mobile specific button adjustments */
+  .ant-btn-sm {
+    height: 28px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+
+  .ant-btn {
+    font-size: 12px;
+  }
+
+  /* Mobile card padding adjustments */
+  .ant-card-body {
+    padding: 8px 12px;
+  }
+
+  .ant-card-head {
+    padding: 6px 12px;
+    min-height: auto;
+  }
+
+  .ant-card-head-title {
+    font-size: 14px;
+    padding: 4px 0;
+  }
+
+  /* Mobile typography adjustments */
+  .ant-typography h4 {
+    font-size: 14px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .ant-typography p {
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+
+  /* Mobile space adjustments */
+  .ant-space-item {
+    margin-bottom: 4px;
+  }
+
+  /* Mobile modal adjustments */
+  .ant-modal {
+    margin: 10px;
+    max-width: calc(100vw - 20px);
+  }
+
+  .ant-modal-content {
+    border-radius: 8px;
+  }
+
+  .ant-modal-body {
+    padding: 12px;
+  }
+
+  /* Mobile table responsive */
+  .ant-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ant-table {
+    min-width: 600px;
+    font-size: 12px;
+  }
+
+  .ant-table-thead > tr > th {
+    font-size: 11px;
+    padding: 8px 4px;
+    font-weight: 600;
+  }
+
+  .ant-table-tbody > tr > td {
+    font-size: 11px;
+    padding: 6px 4px;
+  }
+
+  /* Mobile form adjustments */
+  .ant-form-item {
+    margin-bottom: 12px;
+  }
+
+  .ant-select {
+    font-size: 12px;
+  }
+
+  .ant-select-selection-item {
+    font-size: 12px;
+  }
+
+  /* Mobile tag adjustments */
+  .ant-tag {
+    font-size: 10px;
+    padding: 1px 4px;
+    line-height: 16px;
+    margin: 1px;
+  }
+
+  /* Mobile progress adjustments */
+  .ant-progress-text {
+    font-size: 11px;
+  }
+
+  /* Mobile alert adjustments */
+  .ant-alert {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+
+  /* Mobile input adjustments */
+  .ant-input {
+    font-size: 12px;
+  }
+
+  /* Mobile responsive tables - better scrolling */
+  .ant-table-container {
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+
+  /* Improve touch scrolling */
+  .ant-table-wrapper {
+    scroll-behavior: smooth;
+  }
+
+  /* Mobile hamburger menu improvements */
+  .ant-layout-sider {
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Prevent hamburger menu from affecting layout */
+  .fixed {
+    position: fixed !important;
+  }
+
+  /* Hamburger menu specific positioning */
+  .fixed.top-3.right-3 {
+    position: fixed !important;
+    top: 12px !important;
+    right: 12px !important;
+    z-index: 1001 !important;
+    pointer-events: auto;
+  }
+
+  /* Ensure main layout doesn't shift */
+  .ant-layout {
+    position: relative !important;
+  }
+
+  .ant-layout-content {
+    position: relative !important;
+    width: 100% !important;
+  }
+
+  /* Mobile layout centering */
+  .ant-layout-content {
+    display: flex !important;
+    justify-content: center;
+    align-items: flex-start;
+    position: relative;
+  }
+
+  /* Mobile card centering */
+  .ant-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto;
+  }
+
+  /* Mobile card header improvements */
+  .ant-card-head {
+    padding: 8px 12px !important;
+    min-height: auto !important;
+  }
+
+  .ant-card-head-wrapper {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .ant-card-head-title {
+    flex: 1;
+    font-size: 14px !important;
+    padding: 0 !important;
+    line-height: 1.3;
+  }
+
+  .ant-card-extra {
+    margin-left: 0 !important;
+    flex-shrink: 0;
+  }
+
+  /* Mobile container improvements */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Ensure mobile layout doesn't exceed viewport */
+  * {
+    box-sizing: border-box;
+  }
+}
+
+@media (min-width: 768px) {
+  /* Desktop SQL textarea */
+  .sql-textarea {
+    font-size: 14px !important;
+  }
 }

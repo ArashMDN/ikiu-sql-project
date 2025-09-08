@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, Layout } from "antd";
+import { Menu, Layout, Button } from "antd";
 import {
   BookOutlined,
   SearchOutlined,
@@ -13,6 +13,7 @@ import {
   DownOutlined,
   DatabaseOutlined,
   HomeOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import { sqlTopicsData } from "../../data/sqlTopics";
 import SQLLearningModal from "../SQLLearningModal";
@@ -31,7 +32,13 @@ const iconMap = {
   "🤝": <TeamOutlined />,
 };
 
-const SQLSidebar = ({ collapsed, onCollapse }) => {
+const SQLSidebar = ({
+  collapsed,
+  onCollapse,
+  isMobile,
+  sidebarVisible,
+  onClose,
+}) => {
   const [openKeys, setOpenKeys] = useState(["query-basics", "functions"]);
   const [selectedKeys, setSelectedKeys] = useState(["select-statement"]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -43,6 +50,11 @@ const SQLSidebar = ({ collapsed, onCollapse }) => {
 
   const onClick = ({ key }) => {
     setSelectedKeys([key]);
+
+    // Close mobile sidebar when item is clicked
+    if (isMobile && onClose) {
+      onClose();
+    }
 
     // Show learning modal for SQL topics
     const learningTopics = [
@@ -173,12 +185,14 @@ const SQLSidebar = ({ collapsed, onCollapse }) => {
 
   return (
     <Sider
-      width={300}
-      collapsed={collapsed}
-      onCollapse={onCollapse}
-      collapsible
+      width={isMobile ? 280 : 300}
+      collapsed={isMobile ? false : collapsed}
+      onCollapse={!isMobile ? onCollapse : undefined}
+      collapsible={!isMobile}
       theme="dark"
-      className="h-screen overflow-hidden  border-l border-gray-800 shadow-lg sql-sidebar"
+      className={`h-screen overflow-hidden border-l border-gray-800 shadow-lg sql-sidebar transition-transform duration-300 ${
+        isMobile ? (sidebarVisible ? "translate-x-0" : "translate-x-full") : ""
+      }`}
       style={{
         position: "fixed",
         height: "100vh",
@@ -187,11 +201,27 @@ const SQLSidebar = ({ collapsed, onCollapse }) => {
         bottom: 0,
         zIndex: 1000,
         backgroundColor: "#0e1319",
+        transform: isMobile
+          ? sidebarVisible
+            ? "translateX(0)"
+            : "translateX(100%)"
+          : "translateX(0)",
       }}
     >
       <div className="flex flex-col h-full">
         {/* Logo/Header */}
-        <div className="p-4 border-b border-gray-700 bg-[#002140]">
+        <div className="p-4 border-b border-gray-700 bg-[#002140] relative">
+          {/* Mobile Close Button */}
+          {isMobile && (
+            <Button
+              type="text"
+              icon={<CloseOutlined />}
+              onClick={onClose}
+              className="absolute left-2 top-2 text-white hover:text-gray-300"
+              size="small"
+            />
+          )}
+
           <div className="text-white text-lg font-bold text-center">
             {/* {collapsed ? "IKIU" : "آموزش SQL"} */}
             <div className="flex mx-auto items-center justify-center w-fit bg-[#002140]">
@@ -199,8 +229,8 @@ const SQLSidebar = ({ collapsed, onCollapse }) => {
                 className="bg-[#002140] "
                 src="/logo-ikiu-white.png"
                 alt="IKIU"
-                width={100}
-                height={100}
+                width={isMobile ? 80 : 100}
+                height={isMobile ? 80 : 100}
               />
             </div>
           </div>

@@ -1537,13 +1537,17 @@ ON EMPLOYEE (Email);`,
       open={open}
       onCancel={onClose}
       footer={null}
-      width={900}
+      width="90vw"
+      style={{ maxWidth: "900px" }}
       centered
       title={
         <div className="text-center py-2">
-          <Space size="middle">
-            <span className="text-xl">📖</span>
-            <Text strong className="text-lg text-blue-600 dark:text-blue-400">
+          <Space size="middle" className="flex-wrap justify-center">
+            <span className="text-lg sm:text-xl">📖</span>
+            <Text
+              strong
+              className="text-sm sm:text-lg text-blue-600 dark:text-blue-400 text-center"
+            >
               {content.title}
             </Text>
           </Space>
@@ -1557,7 +1561,10 @@ ON EMPLOYEE (Email);`,
         },
       }}
     >
-      <div className="p-6 bg-white dark:bg-[#1F1F1F] space-y-6" dir="rtl">
+      <div
+        className="p-3 sm:p-6 bg-white dark:bg-[#1F1F1F] space-y-4 sm:space-y-6"
+        dir="rtl"
+      >
         {/* Description */}
         <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <p className="text-gray-800 dark:text-gray-200 text-center text-base leading-relaxed m-0">
