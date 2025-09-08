@@ -102,11 +102,18 @@ export async function POST(request) {
 
     const executionTime = Date.now() - startTime;
 
+    // Convert BigInt values to strings to avoid JSON serialization issues
+    const serializedResult = JSON.parse(
+      JSON.stringify(result, (key, value) =>
+        typeof value === "bigint" ? value.toString() : value
+      )
+    );
+
     return NextResponse.json({
       success: true,
-      data: result,
+      data: serializedResult,
       executionTime: `${executionTime}ms`,
-      rowCount: Array.isArray(result) ? result.length : 0,
+      rowCount: Array.isArray(serializedResult) ? serializedResult.length : 0,
       query: query.trim(),
     });
   } catch (error) {

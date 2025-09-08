@@ -23,8 +23,8 @@ const MainLayout = ({ children }) => {
           marginRight: collapsed ? 80 : 300,
         }}
       >
-        <Content className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 min-h-full">
+        <Content className="p-6 bg-gray-50 dark:bg-[#0e1319] min-h-screen">
+          <div className="bg-white dark:bg-[#0e1319] rounded-lg shadow-sm min-h-full">
             {children}
           </div>
         </Content>

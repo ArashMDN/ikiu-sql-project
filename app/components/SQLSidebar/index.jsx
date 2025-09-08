@@ -15,8 +15,8 @@ import {
   HomeOutlined,
 } from "@ant-design/icons";
 import { sqlTopicsData } from "../../data/sqlTopics";
-import styles from "./SQLSidebar.module.css";
 import SQLLearningModal from "../SQLLearningModal";
+import DynamicImage from "../DynamicImage";
 
 const { Sider } = Layout;
 
@@ -52,70 +52,11 @@ const SQLSidebar = ({ collapsed, onCollapse }) => {
     } else {
       // Show learning modal for SQL statements
       const learningTopics = [
-        // Basic SQL Statements
         "select-statement",
         "insert-statement",
         "update-statement",
         "delete-statement",
         "where-clause",
-        // Query Filtering
-        "operators",
-        "order-by",
-        "like",
-        "in",
-        "between",
-        "join",
-        "union",
-        "group-by",
-        "having",
-        "case",
-        "distinct",
-        "exists",
-        "any-all",
-        "ifnull",
-        "null-values",
-        "aliases",
-        // Functions - Aggregate
-        "count",
-        "avg",
-        "sum",
-        "max",
-        "min",
-        // Functions - Window
-        "window-function-basics",
-        "lag",
-        "lead",
-        "first-value",
-        "last-value",
-        // Functions - String
-        "concat",
-        "len",
-        "upper",
-        "lower",
-        // Functions - Numeric
-        "rand",
-        "round",
-        "floor",
-        "ceil",
-        // Functions - Date
-        "current-timestamp",
-        "year",
-        "month",
-        "day",
-        // Tables
-        "datatypes",
-        "create-table",
-        "drop-table",
-        "alter-table",
-        "constraints",
-        "not-null",
-        "unique",
-        "primary-key",
-        "foreign-key",
-        "check",
-        "default",
-        "auto-increment",
-        "index",
       ];
       if (learningTopics.includes(key)) {
         setModalTopic(key);
@@ -189,7 +130,7 @@ const SQLSidebar = ({ collapsed, onCollapse }) => {
       onCollapse={onCollapse}
       collapsible
       theme="dark"
-      className={`h-screen overflow-hidden shadow-lg ${styles.sqlSidebar}`}
+      className="h-screen overflow-hidden  border-l border-gray-800 shadow-lg sql-sidebar"
       style={{
         position: "fixed",
         height: "100vh",
@@ -197,20 +138,29 @@ const SQLSidebar = ({ collapsed, onCollapse }) => {
         top: 0,
         bottom: 0,
         zIndex: 1000,
-        backgroundColor: "#001529",
+        backgroundColor: "#0e1319",
       }}
     >
       <div className="flex flex-col h-full">
         {/* Logo/Header */}
         <div className="p-4 border-b border-gray-700 bg-gray-800">
           <div className="text-white text-lg font-bold text-center">
-            {collapsed ? "SQL" : "آموزش SQL"}
+            {/* {collapsed ? "IKIU" : "آموزش SQL"} */}
+            <div className="flex mx-auto items-center justify-center w-fit bg-gray-800">
+              <DynamicImage
+                className="bg-gray-800 "
+                src="/logo-ikiu-white.png"
+                alt="IKIU"
+                width={100}
+                height={100}
+              />
+            </div>
           </div>
-          {!collapsed && (
+          {/* {!collapsed && (
             <div className="text-gray-400 text-sm text-center mt-1">
               مرجع یادگیری
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Menu */}

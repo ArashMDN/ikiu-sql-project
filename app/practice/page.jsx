@@ -1,15 +1,15 @@
 import MainLayout from "../components/MainLayout";
-import SQLQueryInterface from "../components/SQLQueryInterface";
+import SQLPracticeInterface from "../components/SQLPracticeInterface";
 
 export const metadata = {
   title: "تمرین SQL - آموزش سریع و آسان SQL",
-  description: "محیط تمرین کوئری‌های SQL روی دیتابیس‌های نمونه",
+  description: "محیط تمرین و حل سوالات SQL با سطوح مختلف دشواری",
 };
 
 export default function PracticePage() {
   return (
     <MainLayout>
-      <SQLQueryInterface />
+      <SQLPracticeInterface />
     </MainLayout>
   );
 }

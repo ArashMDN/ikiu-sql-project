@@ -1,6 +1,7 @@
 "use client";
+import "@ant-design/v5-patch-for-react-19";
 import { useDarkMode } from "@/app/utils/store";
-import { ConfigProvider, theme as antdTheme } from "antd";
+import { ConfigProvider, theme as antdTheme, App } from "antd";
 
 const AntConfigProvider = ({ children }) => {
   const isDarkMode = useDarkMode((state) => state.isDarkMode);
@@ -22,6 +23,11 @@ const AntConfigProvider = ({ children }) => {
             colorBorder: "#2d2f35",
             borderRadius: "8px",
           },
+          Menu: {
+            colorBgContainer: "#24262b",
+            colorBorder: "#2d2f35",
+            borderRadius: "8px",
+          },
           Select: {
             borderRadius: "10px",
             colorBgContainer: "#24262b",
@@ -38,7 +44,7 @@ const AntConfigProvider = ({ children }) => {
       }}
       direction="rtl"
     >
-      {children}
+      <App>{children}</App>
     </ConfigProvider>
   );
 };

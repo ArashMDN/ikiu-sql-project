@@ -9,6 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ant-design/v5-patch-for-react-19": "^1.0.3",
+    "@lottiefiles/dotlottie-wc": "^0.7.2",
+    "@monaco-editor/react": "^4.7.0",
     "@prisma/client": "^6.15.0",
     "@tanstack/react-query": "^5.86.0",
     "antd": "^5.27.3",

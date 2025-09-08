@@ -83,7 +83,7 @@ const DynamicImageClient = ({
       animType !== "skeleton"
     ) {
       // Only load dotlottie player when actually needed and in browser environment
-      import("@dotlottie/player-component").catch((error) => {
+      import("@lottiefiles/dotlottie-wc").catch((error) => {
         console.warn("Failed to load dotlottie player:", error);
       });
     }
@@ -157,7 +157,7 @@ const DynamicImageClient = ({
 
   return (
     <div
-      className={`dark:bg-dark-700 bg-gray-300 overflow-hidden ${
+      className={`dark:bg-dark-700 bg-gray-800 overflow-hidden ${
         transparent && "!bg-transparent"
       } ${className}`}
       style={{ position: "relative" }}
@@ -166,7 +166,7 @@ const DynamicImageClient = ({
         <>
           {animType == "loading" ? (
             <div
-              className={`w-full h-full  flex items-center justify-center overflow-hidden dark:bg-dark-700 bg-gray-300`}
+              className={`w-full h-full  flex items-center justify-center overflow-hidden dark:bg-dark-700 bg-gray-800`}
             >
               <ClipLoader
                 color="#6366F1"
@@ -177,11 +177,11 @@ const DynamicImageClient = ({
             </div>
           ) : animType == "skeleton" ? (
             <div
-              className={`w-full h-full animate-ping transition-all  flex items-center justify-center overflow-hidden dark:bg-dark-600 bg-gray-300`}
+              className={`w-full h-full animate-ping transition-all  flex items-center justify-center overflow-hidden dark:bg-dark-600 bg-gray-800`}
             ></div>
           ) : (
             <div
-              className={`flex flex-col items-center justify-center p-5 w-full h-full  dark:bg-dark-700 bg-gray-300`}
+              className={`flex flex-col items-center justify-center p-5 w-full h-full  dark:bg-dark-700 bg-gray-800`}
             >
               {lottieAnimation &&
                 !loadError &&

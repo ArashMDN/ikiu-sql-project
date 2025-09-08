@@ -7,6 +7,7 @@ import StyledComponentsRegistry from "./utils/AntWrapper";
 import localFont from "next/font/local";
 import AntConfigProvider from "./components/AntConfigProvider";
 import ToastWrapper from "./components/ToastWrapper";
+import BlobColors from "./components/BlobColors";
 export const metadata = {
   manifest: "/manifest.json",
   title: {
@@ -61,7 +62,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="fa" dir="rtl" className="dark ">
       <body
-        className={` h-full  bg-gray-50 dark:bg-gray-900 w-screen relative font-[500] overflow-x-hidden`}
+        className={` h-full  bg-gray-50 dark:bg-[#0e1319] w-screen relative font-[500] overflow-x-hidden`}
+        suppressHydrationWarning={true}
       >
         <Providers>
           <StyledComponentsRegistry>
@@ -71,6 +73,7 @@ export default function RootLayout({ children }) {
                 <div
                   className={`${yekan.className}  w-full flex flex-col  h-fit xl:mr-auto  `}
                 >
+                  {/* <BlobColors /> */}
                   <Provider>{children}</Provider>
                 </div>
               </ToastWrapper>
