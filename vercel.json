@@ -1,12 +1,5 @@
 {
-  "build": {
-    "env": {
-      "DATABASE_URL": "file:./dev.db"
-    }
-  },
-  "functions": {
-    "app/api/**/*.js": {
-      "runtime": "nodejs18.x"
-    }
+  "env": {
+    "DATABASE_URL": "file:./prisma/dev.db"
   }
 }
