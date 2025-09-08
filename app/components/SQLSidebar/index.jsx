@@ -44,26 +44,74 @@ const SQLSidebar = ({ collapsed, onCollapse }) => {
   const onClick = ({ key }) => {
     setSelectedKeys([key]);
 
-    // Handle navigation
-    if (key === "practice") {
-      window.location.href = "/practice";
-    } else if (key === "home") {
-      window.location.href = "/";
+    // Show learning modal for SQL topics
+    const learningTopics = [
+      // Query Basics
+      "select-statement",
+      "insert-statement",
+      "update-statement",
+      "delete-statement",
+      "where-clause",
+      // Query Filtering
+      "operators",
+      "order-by",
+      "like",
+      "in",
+      "between",
+      "join",
+      "union",
+      "group-by",
+      "having",
+      "case",
+      "distinct",
+      "exists",
+      "any-all",
+      "ifnull",
+      "null-values",
+      "aliases",
+      // Functions
+      "count",
+      "avg",
+      "sum",
+      "max",
+      "min",
+      "window-function-basics",
+      "lag",
+      "lead",
+      "first-value",
+      "last-value",
+      "concat",
+      "len",
+      "upper",
+      "lower",
+      "rand",
+      "round",
+      "floor",
+      "ceil",
+      "current-timestamp",
+      "year",
+      "month",
+      "day",
+      // Tables
+      "datatypes",
+      "create-table",
+      "drop-table",
+      "alter-table",
+      "constraints",
+      "not-null",
+      "unique",
+      "primary-key",
+      "foreign-key",
+      "check",
+      "default",
+      "auto-increment",
+      "index",
+    ];
+    if (learningTopics.includes(key)) {
+      setModalTopic(key);
+      setModalOpen(true);
     } else {
-      // Show learning modal for SQL statements
-      const learningTopics = [
-        "select-statement",
-        "insert-statement",
-        "update-statement",
-        "delete-statement",
-        "where-clause",
-      ];
-      if (learningTopics.includes(key)) {
-        setModalTopic(key);
-        setModalOpen(true);
-      } else {
-        console.log("Selected topic:", key);
-      }
+      console.log("Selected topic:", key);
     }
   };
 
@@ -143,12 +191,12 @@ const SQLSidebar = ({ collapsed, onCollapse }) => {
     >
       <div className="flex flex-col h-full">
         {/* Logo/Header */}
-        <div className="p-4 border-b border-gray-700 bg-gray-800">
+        <div className="p-4 border-b border-gray-700 bg-[#002140]">
           <div className="text-white text-lg font-bold text-center">
             {/* {collapsed ? "IKIU" : "آموزش SQL"} */}
-            <div className="flex mx-auto items-center justify-center w-fit bg-gray-800">
+            <div className="flex mx-auto items-center justify-center w-fit bg-[#002140]">
               <DynamicImage
-                className="bg-gray-800 "
+                className="bg-[#002140] "
                 src="/logo-ikiu-white.png"
                 alt="IKIU"
                 width={100}

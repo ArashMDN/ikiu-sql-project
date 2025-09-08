@@ -249,6 +249,179 @@ const SQLPracticeInterface = () => {
     }
   };
 
+  // Function to render database relationships
+  const renderDatabaseRelationships = () => {
+    const schema = databaseSchemas[selectedDatabase];
+    if (!schema || !schema.tables) {
+      return (
+        <div style={{ padding: 20, textAlign: "center" }}>
+          <Text type="secondary">اطلاعات روابط جداول در دسترس نیست</Text>
+        </div>
+      );
+    }
+
+    // Extract relationships from foreign keys
+    const relationships = [];
+    Object.entries(schema.tables).forEach(([tableName, table]) => {
+      table.columns.forEach((column) => {
+        if (column.foreign) {
+          const [referencedTable, referencedColumn] = column.foreign.split(".");
+          relationships.push({
+            fromTable: tableName,
+            fromColumn: column.name,
+            toTable: referencedTable,
+            toColumn: referencedColumn,
+            fromTableName: table.name,
+            toTableName:
+              schema.tables[referencedTable]?.name || referencedTable,
+          });
+        }
+      });
+    });
+
+    if (relationships.length === 0) {
+      return (
+        <div style={{ padding: 20, textAlign: "center" }}>
+          <Text type="secondary">
+            هیچ رابطه‌ای بین جداول این دیتابیس تعریف نشده است
+          </Text>
+        </div>
+      );
+    }
+
+    return (
+      <div style={{ maxHeight: 500, overflowY: "auto", padding: 16 }}>
+        <Alert
+          message="روابط بین جداول"
+          description="این بخش روابط خارجی (Foreign Key) بین جداول را نمایش می‌دهد"
+          type="info"
+          showIcon
+          style={{ marginBottom: 20 }}
+        />
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {relationships.map((rel, index) => (
+            <Card
+              key={index}
+              size="small"
+              style={{
+                border: "2px solid #1890ff",
+                borderRadius: 8,
+                background: isDarkMode ? "#001529" : "#f6ffed",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
+                  gap: 16,
+                }}
+              >
+                {/* From Table */}
+                <div style={{ flex: 1, minWidth: 200 }}>
+                  <Card
+                    size="small"
+                    style={{
+                      backgroundColor: isDarkMode ? "#722ed1" : "#f9f0ff",
+                      border: "1px solid #722ed1",
+                      textAlign: "center",
+                    }}
+                  >
+                    <Space direction="vertical" size="small">
+                      <Text
+                        strong
+                        style={{ color: "#722ed1", fontSize: "14px" }}
+                      >
+                        {rel.fromTableName}
+                      </Text>
+                      <Tag color="purple">
+                        {rel.fromTable}.{rel.fromColumn}
+                      </Tag>
+                    </Space>
+                  </Card>
+                </div>
+
+                {/* Relationship Arrow */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    flexDirection: "column",
+                    gap: 4,
+                  }}
+                >
+                  <Text style={{ fontSize: "20px", color: "#1890ff" }}>→</Text>
+                  <Tag color="blue" style={{ fontSize: "10px" }}>
+                    Foreign Key
+                  </Tag>
+                </div>
+
+                {/* To Table */}
+                <div style={{ flex: 1, minWidth: 200 }}>
+                  <Card
+                    size="small"
+                    style={{
+                      backgroundColor: isDarkMode ? "#52c41a" : "#f6ffed",
+                      border: "1px solid #52c41a",
+                      textAlign: "center",
+                    }}
+                  >
+                    <Space direction="vertical" size="small">
+                      <Text
+                        strong
+                        style={{ color: "#52c41a", fontSize: "14px" }}
+                      >
+                        {rel.toTableName}
+                      </Text>
+                      <Tag color="green">
+                        {rel.toTable}.{rel.toColumn}
+                      </Tag>
+                    </Space>
+                  </Card>
+                </div>
+              </div>
+
+              {/* Relationship Description */}
+              <div style={{ marginTop: 12, textAlign: "center" }}>
+                <Text type="secondary" style={{ fontSize: "12px" }}>
+                  هر رکورد در جدول <Text code>{rel.fromTableName}</Text> به یک
+                  رکورد در جدول <Text code>{rel.toTableName}</Text> مرتبط است
+                </Text>
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        {/* Summary */}
+        <Card
+          style={{
+            marginTop: 20,
+            backgroundColor: isDarkMode ? "#1f1f1f" : "#fafafa",
+          }}
+        >
+          <Space direction="vertical" style={{ width: "100%" }}>
+            <Text strong>خلاصه روابط:</Text>
+            <ul style={{ margin: 0, paddingRight: 20 }}>
+              {relationships.map((rel, index) => (
+                <li key={index} style={{ marginBottom: 4 }}>
+                  <Text>
+                    <Text code>{rel.fromTableName}</Text> ← متصل به →{" "}
+                    <Text code>{rel.toTableName}</Text>{" "}
+                    <Text type="secondary">
+                      (از طریق {rel.fromColumn} → {rel.toColumn})
+                    </Text>
+                  </Text>
+                </li>
+              ))}
+            </ul>
+          </Space>
+        </Card>
+      </div>
+    );
+  };
+
   if (!currentQuestion) {
     return (
       <Card className="m-4">
@@ -886,13 +1059,7 @@ SELECT * FROM table_name;"
             {
               key: "relationships",
               label: "روابط جداول",
-              children: (
-                <div style={{ padding: 20, textAlign: "center" }}>
-                  <Text type="secondary">
-                    نمودار روابط جداول در نسخه‌های آینده اضافه خواهد شد
-                  </Text>
-                </div>
-              ),
+              children: renderDatabaseRelationships(),
             },
           ]}
         />
