@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // External packages for server components  
+  // External packages for server components
   serverExternalPackages: ["@prisma/client", "prisma"],
 
   // Webpack configuration for Prisma
