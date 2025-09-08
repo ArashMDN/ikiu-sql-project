@@ -1,7 +1,23 @@
 import { PrismaClient } from "../../../generated/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
+// Initialize Prisma Client with explicit database URL for production
+const getDatabaseUrl = () => {
+  // In production, use the explicit file path
+  if (process.env.NODE_ENV === "production") {
+    return "file:./prisma/dev.db";
+  }
+  // In development, use environment variable or default
+  return process.env.DATABASE_URL || "file:./prisma/dev.db";
+};
+
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: getDatabaseUrl(),
+    },
+  },
+});
 
 // List of allowed read-only SQL commands
 const ALLOWED_COMMANDS = [
