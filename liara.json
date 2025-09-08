@@ -1,11 +1,8 @@
 {
-  "platform": "next",
-  "app": "ikiu-sql-project",
+  "app": "sql-ikiu",
   "port": 3000,
   "build": {
-    "env": {
-      "NODE_ENV": "production",
-      "DATABASE_URL": "file:./prisma/dev.db"
-    }
-  }
+    "location": "iran"
+  },
+  "disks": []
 }
