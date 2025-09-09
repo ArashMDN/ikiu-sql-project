@@ -22,23 +22,23 @@ const importantFiles = [
   "next.config.mjs",
   "liara.json",
   "prisma/schema.prisma",
-  "prisma/dev.db",
+  // "prisma/dev.db",
 ];
 importantFiles.forEach((file) => {
   if (fs.existsSync(file)) {
     console.log(`✅ ${file} exists`);
-    if (file.endsWith(".db")) {
-      const stats = fs.statSync(file);
-      console.log(`   Database size: ${(stats.size / 1024).toFixed(2)} KB`);
-    }
+    // if (file.endsWith(".db")) {
+    //   const stats = fs.statSync(file);
+    //   console.log(`   Database size: ${(stats.size / 1024).toFixed(2)} KB`);
+    // }
   } else {
     console.log(`❌ ${file} missing`);
   }
 });
 
-// Check environment variables
-console.log("Environment variables:");
-console.log("NODE_ENV:", process.env.NODE_ENV);
-console.log("DATABASE_URL:", process.env.DATABASE_URL);
+// // Check environment variables
+// console.log("Environment variables:");
+// console.log("NODE_ENV:", process.env.NODE_ENV);
+// console.log("DATABASE_URL:", process.env.DATABASE_URL);
 
-console.log("=== END CHECK ===");
+// console.log("=== END CHECK ===");
