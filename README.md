@@ -26,7 +26,7 @@
 1. **سیستم فروشگاه آنلاین (E-commerce)** - مشتریان، محصولات، دسته‌بندی‌ها، سفارشات، اقلام سفارش، نظرات
 2. **سیستم مدیریت مدرسه (School)** - دانش‌آموزان، معلمان، دروس، ثبت‌نام‌ها، نمرات
 3. **سیستم مدیریت کتابخانه (Library)** - کتاب‌ها، نویسندگان، ناشران، اعضا، امانات، ارتباط کتاب-نویسنده
-4. **سیستم مدیریت شرکت (Company)** - کارمندان، بخش‌ها، پروژه‌ها، مکان‌های بخش، کار روی پروژه، وابستگان
+4. **سیستم مدیریت شرکت (Company)** - کارمندان، بخش‌ها، پروژه‌ها، مکان‌های بخش، کار روی پروژه، وابستگان (دیتابیس استاندارد COMPANY)
 
 ### 🔒 **امنیت**
 
@@ -182,7 +182,7 @@ GROUP BY c.id, c.firstName, c.lastName;
 -- محصولات پرفروش
 SELECT p.name, SUM(oi.quantity) as total_sold
 FROM products p
-JOIN orderItems oi ON p.id = oi.productId
+JOIN order_items oi ON p.id = oi.productId
 GROUP BY p.id, p.name
 ORDER BY total_sold DESC;
 ```
@@ -207,8 +207,10 @@ GROUP BY t.id, t.firstName, t.lastName;
 
 ```sql
 -- کتاب‌های در دسترس
-SELECT b.title, b.author, b.availableCopies
+SELECT b.title, a.firstName || ' ' || a.lastName as author_name, b.availableCopies
 FROM books b
+JOIN book_authors ba ON b.id = ba.bookId
+JOIN authors a ON ba.authorId = a.id
 WHERE b.availableCopies > 0;
 
 -- اعضای فعال با امانات جاری

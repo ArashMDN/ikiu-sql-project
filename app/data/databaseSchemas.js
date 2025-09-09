@@ -7,64 +7,173 @@ export const databaseSchemas = {
         name: "مشتریان",
         description: "اطلاعات مشتریان فروشگاه",
         columns: [
-          { name: "id", type: "INTEGER", primary: true, description: "شناسه یکتا" },
-          { name: "firstName", type: "TEXT", nullable: false, description: "نام" },
-          { name: "lastName", type: "TEXT", nullable: false, description: "نام خانوادگی" },
+          {
+            name: "id",
+            type: "INTEGER",
+            primary: true,
+            description: "شناسه یکتا",
+          },
+          {
+            name: "firstName",
+            type: "TEXT",
+            nullable: false,
+            description: "نام",
+          },
+          {
+            name: "lastName",
+            type: "TEXT",
+            nullable: false,
+            description: "نام خانوادگی",
+          },
           { name: "email", type: "TEXT", unique: true, description: "ایمیل" },
           { name: "phone", type: "TEXT", description: "شماره تلفن" },
           { name: "address", type: "TEXT", description: "آدرس" },
-          { name: "registrationDate", type: "DATE", description: "تاریخ عضویت" }
-        ]
+          { name: "city", type: "TEXT", description: "شهر" },
+          { name: "country", type: "TEXT", description: "کشور" },
+          { name: "createdAt", type: "DATETIME", description: "تاریخ ایجاد" },
+          {
+            name: "updatedAt",
+            type: "DATETIME",
+            description: "تاریخ به‌روزرسانی",
+          },
+        ],
       },
       products: {
         name: "محصولات",
         description: "کاتالوگ محصولات فروشگاه",
         columns: [
-          { name: "id", type: "INTEGER", primary: true, description: "شناسه یکتا" },
-          { name: "name", type: "TEXT", nullable: false, description: "نام محصول" },
+          {
+            name: "id",
+            type: "INTEGER",
+            primary: true,
+            description: "شناسه یکتا",
+          },
+          {
+            name: "name",
+            type: "TEXT",
+            nullable: false,
+            description: "نام محصول",
+          },
           { name: "description", type: "TEXT", description: "توضیحات محصول" },
-          { name: "price", type: "DECIMAL", nullable: false, description: "قیمت (تومان)" },
-          { name: "category", type: "TEXT", description: "دسته‌بندی" },
+          {
+            name: "price",
+            type: "FLOAT",
+            nullable: false,
+            description: "قیمت (تومان)",
+          },
           { name: "stock", type: "INTEGER", description: "موجودی انبار" },
-          { name: "createdAt", type: "DATETIME", description: "تاریخ ایجاد" }
-        ]
+          {
+            name: "categoryId",
+            type: "INTEGER",
+            foreign: "categories.id",
+            description: "شناسه دسته‌بندی",
+          },
+          { name: "imageUrl", type: "TEXT", description: "آدرس تصویر" },
+          { name: "isActive", type: "BOOLEAN", description: "وضعیت فعال" },
+          { name: "createdAt", type: "DATETIME", description: "تاریخ ایجاد" },
+          {
+            name: "updatedAt",
+            type: "DATETIME",
+            description: "تاریخ به‌روزرسانی",
+          },
+        ],
       },
       orders: {
         name: "سفارشات",
         description: "سفارشات مشتریان",
         columns: [
-          { name: "id", type: "INTEGER", primary: true, description: "شناسه یکتا" },
-          { name: "customerId", type: "INTEGER", foreign: "customers.id", description: "شناسه مشتری" },
+          {
+            name: "id",
+            type: "INTEGER",
+            primary: true,
+            description: "شناسه یکتا",
+          },
+          {
+            name: "customerId",
+            type: "INTEGER",
+            foreign: "customers.id",
+            description: "شناسه مشتری",
+          },
           { name: "orderDate", type: "DATETIME", description: "تاریخ سفارش" },
           { name: "status", type: "TEXT", description: "وضعیت سفارش" },
-          { name: "totalAmount", type: "DECIMAL", description: "مبلغ کل" },
-          { name: "shippingAddress", type: "TEXT", description: "آدرس ارسال" }
-        ]
+          { name: "totalAmount", type: "FLOAT", description: "مبلغ کل" },
+          { name: "shippingAddress", type: "TEXT", description: "آدرس ارسال" },
+        ],
+      },
+      categories: {
+        name: "دسته‌بندی‌ها",
+        description: "دسته‌بندی محصولات",
+        columns: [
+          {
+            name: "id",
+            type: "INTEGER",
+            primary: true,
+            description: "شناسه یکتا",
+          },
+          {
+            name: "name",
+            type: "TEXT",
+            unique: true,
+            description: "نام دسته‌بندی",
+          },
+          { name: "description", type: "TEXT", description: "توضیحات" },
+          { name: "createdAt", type: "DATETIME", description: "تاریخ ایجاد" },
+        ],
       },
       orderItems: {
         name: "اقلام سفارش",
         description: "جزئیات اقلام هر سفارش",
         columns: [
-          { name: "id", type: "INTEGER", primary: true, description: "شناسه یکتا" },
-          { name: "orderId", type: "INTEGER", foreign: "orders.id", description: "شناسه سفارش" },
-          { name: "productId", type: "INTEGER", foreign: "products.id", description: "شناسه محصول" },
+          {
+            name: "id",
+            type: "INTEGER",
+            primary: true,
+            description: "شناسه یکتا",
+          },
+          {
+            name: "orderId",
+            type: "INTEGER",
+            foreign: "orders.id",
+            description: "شناسه سفارش",
+          },
+          {
+            name: "productId",
+            type: "INTEGER",
+            foreign: "products.id",
+            description: "شناسه محصول",
+          },
           { name: "quantity", type: "INTEGER", description: "تعداد" },
-          { name: "unitPrice", type: "DECIMAL", description: "قیمت واحد" }
-        ]
+          { name: "price", type: "FLOAT", description: "قیمت" },
+        ],
       },
-      payments: {
-        name: "پرداخت‌ها",
-        description: "اطلاعات پرداخت سفارشات",
+      reviews: {
+        name: "نظرات",
+        description: "نظرات مشتریان در مورد محصولات",
         columns: [
-          { name: "id", type: "INTEGER", primary: true, description: "شناسه یکتا" },
-          { name: "orderId", type: "INTEGER", foreign: "orders.id", description: "شناسه سفارش" },
-          { name: "amount", type: "DECIMAL", description: "مبلغ پرداخت" },
-          { name: "paymentMethod", type: "TEXT", description: "روش پرداخت" },
-          { name: "paymentDate", type: "DATETIME", description: "تاریخ پرداخت" },
-          { name: "status", type: "TEXT", description: "وضعیت پرداخت" }
-        ]
-      }
-    }
+          {
+            name: "id",
+            type: "INTEGER",
+            primary: true,
+            description: "شناسه یکتا",
+          },
+          {
+            name: "customerId",
+            type: "INTEGER",
+            foreign: "customers.id",
+            description: "شناسه مشتری",
+          },
+          {
+            name: "productId",
+            type: "INTEGER",
+            foreign: "products.id",
+            description: "شناسه محصول",
+          },
+          { name: "rating", type: "INTEGER", description: "امتیاز (1-5)" },
+          { name: "comment", type: "TEXT", description: "متن نظر" },
+          { name: "createdAt", type: "DATETIME", description: "تاریخ ایجاد" },
+        ],
+      },
+    },
   },
   school: {
     name: "سیستم مدیریت مدرسه",
@@ -74,176 +183,476 @@ export const databaseSchemas = {
         name: "دانش‌آموزان",
         description: "اطلاعات دانش‌آموزان مدرسه",
         columns: [
-          { name: "id", type: "INTEGER", primary: true, description: "شناسه یکتا" },
-          { name: "firstName", type: "TEXT", nullable: false, description: "نام" },
-          { name: "lastName", type: "TEXT", nullable: false, description: "نام خانوادگی" },
-          { name: "studentNumber", type: "TEXT", unique: true, description: "شماره دانش‌آموزی" },
-          { name: "grade", type: "INTEGER", description: "پایه تحصیلی" },
-          { name: "birthDate", type: "DATE", description: "تاریخ تولد" },
-          { name: "enrollmentDate", type: "DATE", description: "تاریخ ثبت‌نام" }
-        ]
+          {
+            name: "id",
+            type: "INTEGER",
+            primary: true,
+            description: "شناسه یکتا",
+          },
+          {
+            name: "firstName",
+            type: "TEXT",
+            nullable: false,
+            description: "نام",
+          },
+          {
+            name: "lastName",
+            type: "TEXT",
+            nullable: false,
+            description: "نام خانوادگی",
+          },
+          {
+            name: "studentId",
+            type: "TEXT",
+            unique: true,
+            description: "شناسه دانش‌آموز",
+          },
+          { name: "email", type: "TEXT", unique: true, description: "ایمیل" },
+          { name: "phone", type: "TEXT", description: "شماره تلفن" },
+          { name: "birthDate", type: "DATETIME", description: "تاریخ تولد" },
+          { name: "address", type: "TEXT", description: "آدرس" },
+          {
+            name: "enrollmentDate",
+            type: "DATETIME",
+            description: "تاریخ ثبت‌نام",
+          },
+          { name: "status", type: "TEXT", description: "وضعیت" },
+        ],
       },
       teachers: {
         name: "معلمان",
         description: "اطلاعات معلمان مدرسه",
         columns: [
-          { name: "id", type: "INTEGER", primary: true, description: "شناسه یکتا" },
-          { name: "firstName", type: "TEXT", nullable: false, description: "نام" },
-          { name: "lastName", type: "TEXT", nullable: false, description: "نام خانوادگی" },
+          {
+            name: "id",
+            type: "INTEGER",
+            primary: true,
+            description: "شناسه یکتا",
+          },
+          {
+            name: "firstName",
+            type: "TEXT",
+            nullable: false,
+            description: "نام",
+          },
+          {
+            name: "lastName",
+            type: "TEXT",
+            nullable: false,
+            description: "نام خانوادگی",
+          },
+          {
+            name: "teacherId",
+            type: "TEXT",
+            unique: true,
+            description: "شناسه معلم",
+          },
           { name: "email", type: "TEXT", unique: true, description: "ایمیل" },
-          { name: "subject", type: "TEXT", description: "تخصص درسی" },
-          { name: "hireDate", type: "DATE", description: "تاریخ استخدام" },
-          { name: "salary", type: "DECIMAL", description: "حقوق" }
-        ]
+          { name: "phone", type: "TEXT", description: "شماره تلفن" },
+          { name: "department", type: "TEXT", description: "بخش" },
+          { name: "salary", type: "FLOAT", description: "حقوق" },
+          { name: "hireDate", type: "DATETIME", description: "تاریخ استخدام" },
+        ],
       },
       courses: {
         name: "دروس",
         description: "لیست دروس ارائه شده",
         columns: [
-          { name: "id", type: "INTEGER", primary: true, description: "شناسه یکتا" },
-          { name: "name", type: "TEXT", nullable: false, description: "نام درس" },
-          { name: "teacherId", type: "INTEGER", foreign: "teachers.id", description: "شناسه معلم" },
-          { name: "grade", type: "INTEGER", description: "پایه تحصیلی" },
+          {
+            name: "id",
+            type: "INTEGER",
+            primary: true,
+            description: "شناسه یکتا",
+          },
+          {
+            name: "courseCode",
+            type: "TEXT",
+            unique: true,
+            description: "کد درس",
+          },
+          {
+            name: "courseName",
+            type: "TEXT",
+            nullable: false,
+            description: "نام درس",
+          },
+          { name: "description", type: "TEXT", description: "توضیحات" },
           { name: "credits", type: "INTEGER", description: "تعداد واحد" },
-          { name: "schedule", type: "TEXT", description: "برنامه زمانی" }
-        ]
+          {
+            name: "teacherId",
+            type: "INTEGER",
+            foreign: "teachers.id",
+            description: "شناسه معلم",
+          },
+          { name: "semester", type: "TEXT", description: "ترم" },
+          { name: "year", type: "INTEGER", description: "سال" },
+          {
+            name: "maxStudents",
+            type: "INTEGER",
+            description: "حداکثر دانش‌آموز",
+          },
+        ],
       },
       enrollments: {
         name: "ثبت‌نام دروس",
         description: "ثبت‌نام دانش‌آموزان در دروس",
         columns: [
-          { name: "id", type: "INTEGER", primary: true, description: "شناسه یکتا" },
-          { name: "studentId", type: "INTEGER", foreign: "students.id", description: "شناسه دانش‌آموز" },
-          { name: "courseId", type: "INTEGER", foreign: "courses.id", description: "شناسه درس" },
-          { name: "semester", type: "TEXT", description: "ترم تحصیلی" },
-          { name: "year", type: "INTEGER", description: "سال تحصیلی" }
-        ]
+          {
+            name: "id",
+            type: "INTEGER",
+            primary: true,
+            description: "شناسه یکتا",
+          },
+          {
+            name: "studentId",
+            type: "INTEGER",
+            foreign: "students.id",
+            description: "شناسه دانش‌آموز",
+          },
+          {
+            name: "courseId",
+            type: "INTEGER",
+            foreign: "courses.id",
+            description: "شناسه درس",
+          },
+          {
+            name: "enrollDate",
+            type: "DATETIME",
+            description: "تاریخ ثبت‌نام",
+          },
+          { name: "status", type: "TEXT", description: "وضعیت" },
+        ],
       },
       grades: {
         name: "نمرات",
         description: "نمرات دانش‌آموزان در آزمون‌ها",
         columns: [
-          { name: "id", type: "INTEGER", primary: true, description: "شناسه یکتا" },
-          { name: "studentId", type: "INTEGER", foreign: "students.id", description: "شناسه دانش‌آموز" },
-          { name: "courseId", type: "INTEGER", foreign: "courses.id", description: "شناسه درس" },
+          {
+            name: "id",
+            type: "INTEGER",
+            primary: true,
+            description: "شناسه یکتا",
+          },
+          {
+            name: "studentId",
+            type: "INTEGER",
+            foreign: "students.id",
+            description: "شناسه دانش‌آموز",
+          },
+          {
+            name: "courseId",
+            type: "INTEGER",
+            foreign: "courses.id",
+            description: "شناسه درس",
+          },
+          {
+            name: "teacherId",
+            type: "INTEGER",
+            foreign: "teachers.id",
+            description: "شناسه معلم",
+          },
           { name: "examType", type: "TEXT", description: "نوع آزمون" },
-          { name: "score", type: "DECIMAL", description: "نمره" },
-          { name: "examDate", type: "DATE", description: "تاریخ آزمون" }
-        ]
-      }
-    }
+          { name: "score", type: "FLOAT", description: "نمره" },
+          { name: "maxScore", type: "FLOAT", description: "حداکثر نمره" },
+          { name: "gradeDate", type: "DATETIME", description: "تاریخ نمره" },
+        ],
+      },
+    },
   },
   library: {
     name: "سیستم مدیریت کتابخانه",
-    description: "مدیریت کتاب‌ها، اعضا و امانات",
+    description: "مدیریت کتاب‌ها، نویسندگان، ناشران، اعضا و امانات",
     tables: {
+      authors: {
+        name: "نویسندگان",
+        description: "اطلاعات نویسندگان کتاب‌ها",
+        columns: [
+          {
+            name: "id",
+            type: "INTEGER",
+            primary: true,
+            description: "شناسه یکتا",
+          },
+          { name: "firstName", type: "TEXT", description: "نام" },
+          { name: "lastName", type: "TEXT", description: "نام خانوادگی" },
+          { name: "birthDate", type: "DATETIME", description: "تاریخ تولد" },
+          { name: "nationality", type: "TEXT", description: "ملیت" },
+          { name: "biography", type: "TEXT", description: "بیوگرافی" },
+        ],
+      },
+      publishers: {
+        name: "ناشران",
+        description: "اطلاعات ناشران کتاب‌ها",
+        columns: [
+          {
+            name: "id",
+            type: "INTEGER",
+            primary: true,
+            description: "شناسه یکتا",
+          },
+          { name: "name", type: "TEXT", unique: true, description: "نام ناشر" },
+          { name: "address", type: "TEXT", description: "آدرس" },
+          { name: "phone", type: "TEXT", description: "شماره تلفن" },
+          { name: "email", type: "TEXT", description: "ایمیل" },
+          { name: "website", type: "TEXT", description: "وب‌سایت" },
+        ],
+      },
       books: {
         name: "کتاب‌ها",
         description: "کاتالوگ کتاب‌های کتابخانه",
         columns: [
-          { name: "id", type: "INTEGER", primary: true, description: "شناسه یکتا" },
-          { name: "title", type: "TEXT", nullable: false, description: "عنوان کتاب" },
-          { name: "author", type: "TEXT", description: "نویسنده" },
+          {
+            name: "id",
+            type: "INTEGER",
+            primary: true,
+            description: "شناسه یکتا",
+          },
           { name: "isbn", type: "TEXT", unique: true, description: "شابک" },
-          { name: "category", type: "TEXT", description: "دسته‌بندی" },
-          { name: "publishYear", type: "INTEGER", description: "سال انتشار" },
-          { name: "copies", type: "INTEGER", description: "تعداد نسخه" }
-        ]
+          {
+            name: "title",
+            type: "TEXT",
+            nullable: false,
+            description: "عنوان کتاب",
+          },
+          { name: "description", type: "TEXT", description: "توضیحات" },
+          {
+            name: "publisherId",
+            type: "INTEGER",
+            foreign: "publishers.id",
+            description: "شناسه ناشر",
+          },
+          {
+            name: "publishDate",
+            type: "DATETIME",
+            description: "تاریخ انتشار",
+          },
+          { name: "pages", type: "INTEGER", description: "تعداد صفحات" },
+          { name: "language", type: "TEXT", description: "زبان" },
+          { name: "genre", type: "TEXT", description: "ژانر" },
+          { name: "totalCopies", type: "INTEGER", description: "کل نسخه‌ها" },
+          {
+            name: "availableCopies",
+            type: "INTEGER",
+            description: "نسخه‌های موجود",
+          },
+        ],
+      },
+      book_authors: {
+        name: "نویسندگان کتاب",
+        description: "ارتباط بین کتاب‌ها و نویسندگان",
+        columns: [
+          {
+            name: "bookId",
+            type: "INTEGER",
+            foreign: "books.id",
+            description: "شناسه کتاب",
+          },
+          {
+            name: "authorId",
+            type: "INTEGER",
+            foreign: "authors.id",
+            description: "شناسه نویسنده",
+          },
+        ],
       },
       members: {
         name: "اعضا",
         description: "اطلاعات اعضای کتابخانه",
         columns: [
-          { name: "id", type: "INTEGER", primary: true, description: "شناسه یکتا" },
-          { name: "firstName", type: "TEXT", nullable: false, description: "نام" },
-          { name: "lastName", type: "TEXT", nullable: false, description: "نام خانوادگی" },
+          {
+            name: "id",
+            type: "INTEGER",
+            primary: true,
+            description: "شناسه یکتا",
+          },
+          {
+            name: "memberId",
+            type: "TEXT",
+            unique: true,
+            description: "شناسه عضویت",
+          },
+          {
+            name: "firstName",
+            type: "TEXT",
+            nullable: false,
+            description: "نام",
+          },
+          {
+            name: "lastName",
+            type: "TEXT",
+            nullable: false,
+            description: "نام خانوادگی",
+          },
           { name: "email", type: "TEXT", unique: true, description: "ایمیل" },
           { name: "phone", type: "TEXT", description: "شماره تلفن" },
-          { name: "membershipDate", type: "DATE", description: "تاریخ عضویت" },
-          { name: "membershipType", type: "TEXT", description: "نوع عضویت" }
-        ]
+          { name: "address", type: "TEXT", description: "آدرس" },
+          {
+            name: "membershipDate",
+            type: "DATETIME",
+            description: "تاریخ عضویت",
+          },
+          { name: "membershipType", type: "TEXT", description: "نوع عضویت" },
+          { name: "status", type: "TEXT", description: "وضعیت" },
+        ],
       },
       loans: {
         name: "امانات",
         description: "سوابق امانت کتاب‌ها",
         columns: [
-          { name: "id", type: "INTEGER", primary: true, description: "شناسه یکتا" },
-          { name: "memberId", type: "INTEGER", foreign: "members.id", description: "شناسه عضو" },
-          { name: "bookId", type: "INTEGER", foreign: "books.id", description: "شناسه کتاب" },
-          { name: "loanDate", type: "DATE", description: "تاریخ امانت" },
-          { name: "dueDate", type: "DATE", description: "مهلت بازگشت" },
-          { name: "returnDate", type: "DATE", description: "تاریخ بازگشت" },
-          { name: "status", type: "TEXT", description: "وضعیت امانت" }
-        ]
+          {
+            name: "id",
+            type: "INTEGER",
+            primary: true,
+            description: "شناسه یکتا",
+          },
+          {
+            name: "memberId",
+            type: "INTEGER",
+            foreign: "members.id",
+            description: "شناسه عضو",
+          },
+          {
+            name: "bookId",
+            type: "INTEGER",
+            foreign: "books.id",
+            description: "شناسه کتاب",
+          },
+          { name: "loanDate", type: "DATETIME", description: "تاریخ امانت" },
+          { name: "dueDate", type: "DATETIME", description: "مهلت بازگشت" },
+          { name: "returnDate", type: "DATETIME", description: "تاریخ بازگشت" },
+          { name: "fine", type: "FLOAT", description: "جریمه" },
+          { name: "status", type: "TEXT", description: "وضعیت امانت" },
+        ],
       },
-      reservations: {
-        name: "رزروها",
-        description: "رزرو کتاب‌ها توسط اعضا",
-        columns: [
-          { name: "id", type: "INTEGER", primary: true, description: "شناسه یکتا" },
-          { name: "memberId", type: "INTEGER", foreign: "members.id", description: "شناسه عضو" },
-          { name: "bookId", type: "INTEGER", foreign: "books.id", description: "شناسه کتاب" },
-          { name: "reservationDate", type: "DATE", description: "تاریخ رزرو" },
-          { name: "status", type: "TEXT", description: "وضعیت رزرو" }
-        ]
-      }
-    }
+    },
   },
   company: {
     name: "سیستم مدیریت شرکت",
-    description: "مدیریت کارمندان، بخش‌ها، پروژه‌ها و حضور و غیاب",
+    description:
+      "مدل استاندارد پایگاه داده شرکت - کارمندان، بخش‌ها، پروژه‌ها و وابستگان",
     tables: {
-      employees: {
+      EMPLOYEE: {
         name: "کارمندان",
         description: "اطلاعات کارمندان شرکت",
         columns: [
-          { name: "id", type: "INTEGER", primary: true, description: "شناسه یکتا" },
-          { name: "firstName", type: "TEXT", nullable: false, description: "نام" },
-          { name: "lastName", type: "TEXT", nullable: false, description: "نام خانوادگی" },
-          { name: "email", type: "TEXT", unique: true, description: "ایمیل" },
-          { name: "position", type: "TEXT", description: "سمت" },
-          { name: "departmentId", type: "INTEGER", foreign: "departments.id", description: "شناسه بخش" },
-          { name: "salary", type: "DECIMAL", description: "حقوق" },
-          { name: "hireDate", type: "DATE", description: "تاریخ استخدام" }
-        ]
+          {
+            name: "Ssn",
+            type: "TEXT",
+            primary: true,
+            description: "شماره تامین اجتماعی",
+          },
+          { name: "Fname", type: "TEXT", description: "نام" },
+          { name: "Minit", type: "TEXT", description: "نام میانی" },
+          { name: "Lname", type: "TEXT", description: "نام خانوادگی" },
+          { name: "Bdate", type: "DATETIME", description: "تاریخ تولد" },
+          { name: "Address", type: "TEXT", description: "آدرس" },
+          { name: "Sex", type: "TEXT", description: "جنسیت" },
+          { name: "Salary", type: "FLOAT", description: "حقوق" },
+          {
+            name: "Super_ssn",
+            type: "TEXT",
+            foreign: "EMPLOYEE.Ssn",
+            description: "سرپرست",
+          },
+          {
+            name: "Dno",
+            type: "INTEGER",
+            foreign: "DEPARTMENT.Dnumber",
+            description: "شماره بخش",
+          },
+        ],
       },
-      departments: {
+      DEPARTMENT: {
         name: "بخش‌ها",
         description: "بخش‌های مختلف شرکت",
         columns: [
-          { name: "id", type: "INTEGER", primary: true, description: "شناسه یکتا" },
-          { name: "name", type: "TEXT", nullable: false, description: "نام بخش" },
-          { name: "description", type: "TEXT", description: "توضیحات بخش" },
-          { name: "managerId", type: "INTEGER", foreign: "employees.id", description: "شناسه مدیر" },
-          { name: "budget", type: "DECIMAL", description: "بودجه" }
-        ]
+          { name: "Dname", type: "TEXT", description: "نام بخش" },
+          {
+            name: "Dnumber",
+            type: "INTEGER",
+            primary: true,
+            description: "شماره بخش",
+          },
+          {
+            name: "Mgr_ssn",
+            type: "TEXT",
+            description: "شماره تامین اجتماعی مدیر",
+          },
+          {
+            name: "Mgr_start_date",
+            type: "DATETIME",
+            description: "تاریخ شروع مدیریت",
+          },
+        ],
       },
-      projects: {
+      DEPT_LOCATIONS: {
+        name: "مکان‌های بخش",
+        description: "مکان‌های مختلف هر بخش",
+        columns: [
+          {
+            name: "Dnumber",
+            type: "INTEGER",
+            foreign: "DEPARTMENT.Dnumber",
+            description: "شماره بخش",
+          },
+          { name: "Dlocation", type: "TEXT", description: "مکان" },
+        ],
+      },
+      PROJECT: {
         name: "پروژه‌ها",
         description: "پروژه‌های شرکت",
         columns: [
-          { name: "id", type: "INTEGER", primary: true, description: "شناسه یکتا" },
-          { name: "name", type: "TEXT", nullable: false, description: "نام پروژه" },
-          { name: "description", type: "TEXT", description: "توضیحات پروژه" },
-          { name: "startDate", type: "DATE", description: "تاریخ شروع" },
-          { name: "endDate", type: "DATE", description: "تاریخ پایان" },
-          { name: "deadline", type: "DATE", description: "مهلت تحویل" },
-          { name: "status", type: "TEXT", description: "وضعیت پروژه" },
-          { name: "budget", type: "DECIMAL", description: "بودجه" }
-        ]
+          { name: "Pname", type: "TEXT", description: "نام پروژه" },
+          {
+            name: "Pnumber",
+            type: "INTEGER",
+            primary: true,
+            description: "شماره پروژه",
+          },
+          { name: "Plocation", type: "TEXT", description: "مکان پروژه" },
+          {
+            name: "Dnum",
+            type: "INTEGER",
+            foreign: "DEPARTMENT.Dnumber",
+            description: "شماره بخش",
+          },
+        ],
       },
-      attendances: {
-        name: "حضور و غیاب",
-        description: "سوابق حضور کارمندان",
+      WORKS_ON: {
+        name: "کار روی پروژه",
+        description: "ساعت کاری کارمندان روی پروژه‌ها",
         columns: [
-          { name: "id", type: "INTEGER", primary: true, description: "شناسه یکتا" },
-          { name: "employeeId", type: "INTEGER", foreign: "employees.id", description: "شناسه کارمند" },
-          { name: "date", type: "DATE", description: "تاریخ" },
-          { name: "checkIn", type: "TIME", description: "ساعت ورود" },
-          { name: "checkOut", type: "TIME", description: "ساعت خروج" },
-          { name: "status", type: "TEXT", description: "وضعیت حضور" }
-        ]
-      }
-    }
-  }
+          {
+            name: "Essn",
+            type: "TEXT",
+            foreign: "EMPLOYEE.Ssn",
+            description: "شماره تامین اجتماعی کارمند",
+          },
+          {
+            name: "Pno",
+            type: "INTEGER",
+            foreign: "PROJECT.Pnumber",
+            description: "شماره پروژه",
+          },
+          { name: "Hours", type: "FLOAT", description: "ساعت کار" },
+        ],
+      },
+      DEPENDENT: {
+        name: "وابستگان",
+        description: "وابستگان کارمندان",
+        columns: [
+          {
+            name: "Essn",
+            type: "TEXT",
+            foreign: "EMPLOYEE.Ssn",
+            description: "شماره تامین اجتماعی کارمند",
+          },
+          { name: "Dependent_name", type: "TEXT", description: "نام وابسته" },
+          { name: "Sex", type: "TEXT", description: "جنسیت" },
+          { name: "Bdate", type: "DATETIME", description: "تاریخ تولد" },
+          { name: "Relationship", type: "TEXT", description: "نسبت" },
+        ],
+      },
+    },
+  },
 };

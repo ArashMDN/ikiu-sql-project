@@ -42,7 +42,7 @@ const SQLPracticeInterface = () => {
   const { message } = App.useApp();
 
   // State management
-  const [selectedDatabase, setSelectedDatabase] = useState("ecommerce");
+  const [selectedDatabase, setSelectedDatabase] = useState("company");
   const [selectedDifficulty, setSelectedDifficulty] = useState("beginner");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userQuery, setUserQuery] = useState("");
@@ -707,7 +707,7 @@ SELECT * FROM table_name;"
                     ? "students"
                     : selectedDatabase === "library"
                     ? "books"
-                    : "employees";
+                    : "EMPLOYEE";
                 setUserQuery(`SELECT * FROM ${tableName} LIMIT 10;`);
               }}
               size={isMobile ? "small" : "middle"}

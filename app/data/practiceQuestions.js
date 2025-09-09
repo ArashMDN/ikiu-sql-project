@@ -1162,7 +1162,7 @@ export const practiceQuestions = {
           id: "lib_basic_1",
           title: "لیست همه کتاب‌ها",
           description: "تمام کتاب‌های موجود در کتابخانه را نمایش دهید.",
-          expectedColumns: ["id", "title", "isbn", "publishYear"],
+          expectedColumns: ["id", "title", "isbn", "publishDate"],
           hints: ["از جدول books استفاده کنید", "از SELECT * استفاده کنید"],
           solution: "SELECT * FROM books;",
           explanation:
@@ -1190,13 +1190,13 @@ export const practiceQuestions = {
           title: "کتاب‌های قدیمی",
           description:
             "کتاب‌هایی که قبل از سال 2000 منتشر شده‌اند را نمایش دهید.",
-          expectedColumns: ["title", "publishYear"],
+          expectedColumns: ["title", "publishDate"],
           hints: [
             "از جدول books استفاده کنید",
-            "شرط WHERE برای publishYear < 2000 اضافه کنید",
+            "شرط WHERE برای سال انتشار قبل از 2000 اضافه کنید",
           ],
           solution:
-            "SELECT title, publishYear FROM books WHERE publishYear < 2000;",
+            "SELECT title, publishDate FROM books WHERE strftime('%Y', publishDate) < '2000';",
           explanation:
             "این کوئری کتاب‌های کلاسیک و قدیمی کتابخانه را فیلتر می‌کند.",
           difficulty: "beginner",
@@ -1222,13 +1222,13 @@ export const practiceQuestions = {
           title: "کتاب‌های جدید",
           description:
             "کتاب‌هایی که بعد از سال 2010 منتشر شده‌اند را به ترتیب سال نمایش دهید.",
-          expectedColumns: ["title", "publishYear"],
+          expectedColumns: ["title", "publishDate"],
           hints: [
-            "شرط WHERE برای publishYear > 2010 اضافه کنید",
+            "شرط WHERE برای سال انتشار بعد از 2010 اضافه کنید",
             "از ORDER BY برای مرتب‌سازی استفاده کنید",
           ],
           solution:
-            "SELECT title, publishYear FROM books WHERE publishYear > 2010 ORDER BY publishYear;",
+            "SELECT title, publishDate FROM books WHERE strftime('%Y', publishDate) > '2010' ORDER BY publishDate;",
           explanation:
             "این کوئری کتاب‌های جدید را فیلتر کرده و بر اساس سال انتشار مرتب می‌کند.",
           difficulty: "beginner",
@@ -1300,13 +1300,13 @@ export const practiceQuestions = {
           title: "کتاب‌های دهه 90",
           description:
             "کتاب‌هایی که بین سال‌های 1990 تا 1999 منتشر شده‌اند را نمایش دهید.",
-          expectedColumns: ["title", "publishYear"],
+          expectedColumns: ["title", "publishDate"],
           hints: [
-            "از عملگر BETWEEN استفاده کنید",
+            "از عملگر BETWEEN و strftime برای استخراج سال استفاده کنید",
             "بازه 1990 تا 1999 را تعریف کنید",
           ],
           solution:
-            "SELECT title, publishYear FROM books WHERE publishYear BETWEEN 1990 AND 1999;",
+            "SELECT title, publishDate FROM books WHERE strftime('%Y', publishDate) BETWEEN '1990' AND '1999';",
           explanation:
             "این کوئری کتاب‌های منتشر شده در دهه 1990 را با استفاده از BETWEEN فیلتر می‌کند.",
           difficulty: "beginner",
@@ -1389,12 +1389,12 @@ export const practiceQuestions = {
           description: "میانگین سال انتشار کتاب‌های هر نویسنده را محاسبه کنید.",
           expectedColumns: ["author_name", "avg_publish_year"],
           hints: [
-            "از JOIN بین authors و books استفاده کنید",
+            "نیاز به JOIN بین authors, book_authors و books دارید",
             "از GROUP BY روی نویسنده استفاده کنید",
-            "از تابع AVG استفاده کنید",
+            "از تابع AVG و strftime برای استخراج سال استفاده کنید",
           ],
           solution:
-            "SELECT CONCAT(a.firstName, ' ', a.lastName) AS author_name, AVG(b.publishYear) AS avg_publish_year FROM authors a JOIN books b ON a.id = b.authorId GROUP BY a.id, a.firstName, a.lastName;",
+            "SELECT CONCAT(a.firstName, ' ', a.lastName) AS author_name, AVG(strftime('%Y', b.publishDate)) AS avg_publish_year FROM authors a JOIN book_authors ba ON a.id = ba.authorId JOIN books b ON ba.bookId = b.id GROUP BY a.id, a.firstName, a.lastName;",
           explanation:
             "این کوئری میانگین دوره فعالیت هر نویسنده را بر اساس کتاب‌هایش محاسبه می‌کند.",
           difficulty: "intermediate",
@@ -1440,12 +1440,12 @@ export const practiceQuestions = {
           description: "تعداد کتاب‌های موجود از هر نویسنده را محاسبه کنید.",
           expectedColumns: ["author_name", "book_count"],
           hints: [
-            "از JOIN بین authors و books استفاده کنید",
+            "نیاز به JOIN بین authors, book_authors و books دارید",
             "از GROUP BY روی نویسنده استفاده کنید",
             "از COUNT برای شمارش استفاده کنید",
           ],
           solution:
-            "SELECT CONCAT(a.firstName, ' ', a.lastName) AS author_name, COUNT(b.id) AS book_count FROM authors a LEFT JOIN books b ON a.id = b.authorId GROUP BY a.id, a.firstName, a.lastName ORDER BY book_count DESC;",
+            "SELECT CONCAT(a.firstName, ' ', a.lastName) AS author_name, COUNT(b.id) AS book_count FROM authors a LEFT JOIN book_authors ba ON a.id = ba.authorId LEFT JOIN books b ON ba.bookId = b.id GROUP BY a.id, a.firstName, a.lastName ORDER BY book_count DESC;",
           explanation:
             "این کوئری تولیدات هر نویسنده را در کتابخانه شمارش می‌کند.",
           difficulty: "intermediate",
@@ -1476,12 +1476,12 @@ export const practiceQuestions = {
             "نویسندگانی که کتاب‌هایشان بیش از 10 بار قرض داده شده است را نمایش دهید.",
           expectedColumns: ["author_name", "total_loans"],
           hints: [
-            "نیاز به JOIN بین authors, books و loans دارید",
+            "نیاز به JOIN بین authors, book_authors, books و loans دارید",
             "از GROUP BY روی نویسنده استفاده کنید",
             "از HAVING برای فیلتر تعداد امانت استفاده کنید",
           ],
           solution:
-            "SELECT CONCAT(a.firstName, ' ', a.lastName) AS author_name, COUNT(l.id) AS total_loans FROM authors a JOIN books b ON a.id = b.authorId JOIN loans l ON b.id = l.bookId GROUP BY a.id, a.firstName, a.lastName HAVING COUNT(l.id) > 10 ORDER BY total_loans DESC;",
+            "SELECT CONCAT(a.firstName, ' ', a.lastName) AS author_name, COUNT(l.id) AS total_loans FROM authors a JOIN book_authors ba ON a.id = ba.authorId JOIN books b ON ba.bookId = b.id JOIN loans l ON b.id = l.bookId GROUP BY a.id, a.firstName, a.lastName HAVING COUNT(l.id) > 10 ORDER BY total_loans DESC;",
           explanation:
             "این کوئری نویسندگان محبوب را بر اساس تعداد امانت کتاب‌هایشان شناسایی می‌کند.",
           difficulty: "intermediate",
@@ -1568,7 +1568,7 @@ export const practiceQuestions = {
             "میزان کمبود امانت را محاسبه کنید",
           ],
           solution:
-            "WITH book_loan_stats AS (SELECT b.id, b.title, CONCAT(a.firstName, ' ', a.lastName) AS author_name, COUNT(l.id) AS loan_count FROM books b LEFT JOIN loans l ON b.id = l.bookId LEFT JOIN authors a ON b.authorId = a.id GROUP BY b.id, b.title, a.firstName, a.lastName), avg_stats AS (SELECT AVG(loan_count) AS avg_loans FROM book_loan_stats) SELECT bls.title, bls.author_name, bls.loan_count, ROUND(avgs.avg_loans, 2) AS avg_loans, ROUND((avgs.avg_loans - bls.loan_count), 2) AS underperformance FROM book_loan_stats bls CROSS JOIN avg_stats avgs WHERE bls.loan_count < avgs.avg_loans ORDER BY underperformance DESC;",
+            "WITH book_loan_stats AS (SELECT b.id, b.title, CONCAT(a.firstName, ' ', a.lastName) AS author_name, COUNT(l.id) AS loan_count FROM books b LEFT JOIN loans l ON b.id = l.bookId LEFT JOIN book_authors ba ON b.id = ba.bookId LEFT JOIN authors a ON ba.authorId = a.id GROUP BY b.id, b.title, a.firstName, a.lastName), avg_stats AS (SELECT AVG(loan_count) AS avg_loans FROM book_loan_stats) SELECT bls.title, bls.author_name, bls.loan_count, ROUND(avgs.avg_loans, 2) AS avg_loans, ROUND((avgs.avg_loans - bls.loan_count), 2) AS underperformance FROM book_loan_stats bls CROSS JOIN avg_stats avgs WHERE bls.loan_count < avgs.avg_loans ORDER BY underperformance DESC;",
           explanation:
             "این کوئری کتاب‌های کمتر استفاده شده را برای برنامه‌ریزی تبلیغات شناسایی می‌کند.",
           difficulty: "advanced",
@@ -1720,16 +1720,23 @@ export const practiceQuestions = {
   company: {
     name: "سیستم مدیریت شرکت",
     description: "مدیریت کارمندان، بخش‌ها، پروژه‌ها و حضور و غیاب",
-    tables: ["employees", "departments", "projects", "attendances"],
+    tables: [
+      "EMPLOYEE",
+      "DEPARTMENT",
+      "DEPT_LOCATIONS",
+      "PROJECT",
+      "WORKS_ON",
+      "DEPENDENT",
+    ],
     questions: {
       beginner: [
         {
           id: "comp_basic_1",
           title: "لیست همه کارمندان",
           description: "تمام کارمندان شرکت را نمایش دهید.",
-          expectedColumns: ["id", "firstName", "lastName", "position"],
-          hints: ["از جدول employees استفاده کنید", "از SELECT * استفاده کنید"],
-          solution: "SELECT * FROM employees;",
+          expectedColumns: ["Ssn", "firstName", "Lname", "Salary"],
+          hints: ["از جدول EMPLOYEE استفاده کنید", "از SELECT * استفاده کنید"],
+          solution: "SELECT * FROM EMPLOYEE;",
           explanation: "این کوئری لیست کامل کارمندان شرکت را نمایش می‌دهد.",
           difficulty: "beginner",
           points: 10,
@@ -1738,12 +1745,12 @@ export const practiceQuestions = {
           id: "comp_basic_2",
           title: "لیست همه بخش‌ها",
           description: "نام تمام بخش‌های موجود در شرکت را نمایش دهید.",
-          expectedColumns: ["name", "description"],
+          expectedColumns: ["Dname", "Dnumber"],
           hints: [
-            "از جدول departments استفاده کنید",
-            "فقط name و description را انتخاب کنید",
+            "از جدول DEPARTMENT استفاده کنید",
+            "فقط Dname و Dnumber را انتخاب کنید",
           ],
-          solution: "SELECT name, description FROM departments;",
+          solution: "SELECT Dname, Dnumber FROM DEPARTMENT;",
           explanation: "این کوئری اطلاعات اساسی بخش‌های شرکت را نمایش می‌دهد.",
           difficulty: "beginner",
           points: 10,
@@ -1757,7 +1764,7 @@ export const practiceQuestions = {
             "از تابع COUNT استفاده کنید",
             "از AS برای نام‌گذاری ستون استفاده کنید",
           ],
-          solution: "SELECT COUNT(*) AS total_employees FROM employees;",
+          solution: "SELECT COUNT(*) AS total_employees FROM EMPLOYEE;",
           explanation:
             "این کوئری تعداد کل کارمندان شاغل در شرکت را شمارش می‌کند.",
           difficulty: "beginner",
@@ -1774,7 +1781,7 @@ export const practiceQuestions = {
             "مبلغ 50 میلیون را 50000000 وارد کنید",
           ],
           solution:
-            "SELECT firstName, lastName, salary FROM employees WHERE salary > 50000000;",
+            "SELECT firstName, lastName, salary FROM EMPLOYEE WHERE salary > 50000000;",
           explanation:
             "این کوئری کارمندان با درآمد بالا را بر اساس حقوق فیلتر می‌کند.",
           difficulty: "beginner",
@@ -1792,7 +1799,7 @@ export const practiceQuestions = {
             "وضعیت 'active' را فیلتر کنید",
           ],
           solution:
-            "SELECT name, startDate, status FROM projects WHERE status = 'active';",
+            "SELECT name, startDate, status FROM PROJECT WHERE status = 'active';",
           explanation:
             "این کوئری پروژه‌های در حال اجرا را از کل پروژه‌ها جدا می‌کند.",
           difficulty: "beginner",
@@ -1808,7 +1815,7 @@ export const practiceQuestions = {
             "برای مرتب‌سازی صعودی نیازی به ASC نیست",
           ],
           solution:
-            "SELECT firstName, lastName FROM employees ORDER BY firstName;",
+            "SELECT firstName, lastName FROM EMPLOYEE ORDER BY firstName;",
           explanation:
             "این کوئری کارمندان را به ترتیب الفبایی نام مرتب می‌کند.",
           difficulty: "beginner",
@@ -1826,7 +1833,7 @@ export const practiceQuestions = {
             "شرط WHERE date = date('now') اضافه کنید",
           ],
           solution:
-            "SELECT employeeId, date, status FROM attendances WHERE date = date('now');",
+            "SELECT employeeId, date, status FROM WORKS_ON WHERE date = date('now');",
           explanation: "این کوئری حضور امروز کارمندان را نمایش می‌دهد.",
           difficulty: "beginner",
           points: 20,
@@ -1841,7 +1848,7 @@ export const practiceQuestions = {
             "کلمه 'Manager' را در سمت جست‌وجو کنید",
           ],
           solution:
-            "SELECT firstName, lastName, position FROM employees WHERE position LIKE '%Manager%';",
+            "SELECT firstName, lastName, position FROM EMPLOYEE WHERE position LIKE '%Manager%';",
           explanation: "این کوئری کارمندان دارای سمت مدیریت را شناسایی می‌کند.",
           difficulty: "beginner",
           points: 20,
@@ -1856,7 +1863,7 @@ export const practiceQuestions = {
             "سال جاری را با strftime('%Y', 'now') بدست آورید",
           ],
           solution:
-            "SELECT name, startDate FROM projects WHERE strftime('%Y', startDate) = strftime('%Y', 'now');",
+            "SELECT name, startDate FROM PROJECT WHERE strftime('%Y', startDate) = strftime('%Y', 'now');",
           explanation: "این کوئری پروژه‌های جدید سال جاری را فیلتر می‌کند.",
           difficulty: "beginner",
           points: 25,
@@ -1871,7 +1878,7 @@ export const practiceQuestions = {
             "بخش 'IT' یا 'Technology' را فیلتر کنید",
           ],
           solution:
-            "SELECT e.firstName, e.lastName, e.email FROM employees e JOIN departments d ON e.departmentId = d.id WHERE d.name LIKE '%IT%' OR d.name LIKE '%Technology%';",
+            "SELECT e.firstName, e.lastName, e.email FROM EMPLOYEE e JOIN DEPARTMENT d ON e.departmentId = d.id WHERE d.name LIKE '%IT%' OR d.name LIKE '%Technology%';",
           explanation:
             "این کوئری کارمندان بخش فناوری را با استفاده از JOIN شناسایی می‌کند.",
           difficulty: "beginner",
@@ -1890,7 +1897,7 @@ export const practiceQuestions = {
             "از تابع AVG استفاده کنید",
           ],
           solution:
-            "SELECT d.name AS department_name, AVG(e.salary) AS avg_salary FROM employees e JOIN departments d ON e.departmentId = d.id GROUP BY d.id, d.name;",
+            "SELECT d.name AS department_name, AVG(e.salary) AS avg_salary FROM EMPLOYEE e JOIN DEPARTMENT d ON e.departmentId = d.id GROUP BY d.id, d.name;",
           explanation:
             "این کوئری میانگین حقوق کارمندان را برای هر بخش محاسبه می‌کند.",
           difficulty: "intermediate",
@@ -1907,7 +1914,7 @@ export const practiceQuestions = {
             "از COUNT برای شمارش استفاده کنید",
           ],
           solution:
-            "SELECT d.name AS department_name, COUNT(e.id) AS employee_count FROM employees e JOIN departments d ON e.departmentId = d.id GROUP BY d.id, d.name;",
+            "SELECT d.name AS department_name, COUNT(e.id) AS employee_count FROM EMPLOYEE e JOIN DEPARTMENT d ON e.departmentId = d.id GROUP BY d.id, d.name;",
           explanation: "این کوئری تعداد نیروی انسانی هر بخش را شمارش می‌کند.",
           difficulty: "intermediate",
           points: 35,
@@ -1924,7 +1931,7 @@ export const practiceQuestions = {
             "از julianday برای محاسبه تفاوت تاریخ استفاده کنید",
           ],
           solution:
-            "SELECT name, ROUND((julianday(COALESCE(endDate, 'now')) - julianday(startDate)) / 30.0, 1) AS duration_months FROM projects WHERE (julianday(COALESCE(endDate, 'now')) - julianday(startDate)) / 30.0 > 6;",
+            "SELECT name, ROUND((julianday(COALESCE(endDate, 'now')) - julianday(startDate)) / 30.0, 1) AS duration_months FROM PROJECT WHERE (julianday(COALESCE(endDate, 'now')) - julianday(startDate)) / 30.0 > 6;",
           explanation:
             "این کوئری پروژه‌های طولانی مدت را با محاسبه مدت زمان شناسایی می‌کند.",
           difficulty: "intermediate",
@@ -1942,7 +1949,7 @@ export const practiceQuestions = {
             "از GROUP BY روی کارمند استفاده کنید",
           ],
           solution:
-            "SELECT CONCAT(e.firstName, ' ', e.lastName) AS employee_name, COUNT(a.id) AS attendance_days FROM employees e JOIN attendances a ON e.id = a.employeeId WHERE strftime('%Y-%m', a.date) = strftime('%Y-%m', 'now', '-1 month') GROUP BY e.id, e.firstName, e.lastName HAVING COUNT(a.id) >= 20;",
+            "SELECT CONCAT(e.firstName, ' ', e.lastName) AS employee_name, COUNT(a.id) AS attendance_days FROM EMPLOYEE e JOIN WORKS_ON w ON e.id = a.employeeId WHERE strftime('%Y-%m', a.date) = strftime('%Y-%m', 'now', '-1 month') GROUP BY e.id, e.firstName, e.lastName HAVING COUNT(a.id) >= 20;",
           explanation:
             "این کوئری کارمندان با حضور مناسب را در ماه گذشته شناسایی می‌کند.",
           difficulty: "intermediate",
@@ -1959,7 +1966,7 @@ export const practiceQuestions = {
             "فقط کارمندان با رتبه 1 را انتخاب کنید",
           ],
           solution:
-            "WITH ranked_employees AS (SELECT e.firstName, e.lastName, e.salary, d.name AS department_name, RANK() OVER (PARTITION BY d.id ORDER BY e.salary DESC) AS rank FROM employees e JOIN departments d ON e.departmentId = d.id) SELECT department_name, CONCAT(firstName, ' ', lastName) AS employee_name, salary AS max_salary FROM ranked_employees WHERE rank = 1;",
+            "WITH ranked_employees AS (SELECT e.firstName, e.lastName, e.salary, d.name AS department_name, RANK() OVER (PARTITION BY d.id ORDER BY e.salary DESC) AS rank FROM EMPLOYEE e JOIN DEPARTMENT d ON e.departmentId = d.id) SELECT department_name, CONCAT(firstName, ' ', lastName) AS employee_name, salary AS max_salary FROM ranked_employees WHERE rank = 1;",
           explanation:
             "این کوئری از Window Function برای یافتن بالاترین حقوق در هر بخش استفاده می‌کند.",
           difficulty: "intermediate",
@@ -1977,7 +1984,7 @@ export const practiceQuestions = {
             "از julianday برای محاسبه تفاوت استفاده کنید",
           ],
           solution:
-            "SELECT name, deadline, ROUND(julianday('now') - julianday(deadline)) AS days_delayed FROM projects WHERE status = 'active' AND deadline < date('now');",
+            "SELECT name, deadline, ROUND(julianday('now') - julianday(deadline)) AS days_delayed FROM PROJECT WHERE status = 'active' AND deadline < date('now');",
           explanation:
             "این کوئری پروژه‌های عقب‌افتاده را برای بررسی عملکرد شناسایی می‌کند.",
           difficulty: "intermediate",
@@ -1995,7 +2002,7 @@ export const practiceQuestions = {
             "شرط WHERE برای فیلتر NULL استفاده کنید",
           ],
           solution:
-            "SELECT e.firstName, e.lastName, e.email FROM employees e LEFT JOIN attendances a ON e.id = a.employeeId AND a.date >= date('now', '-7 days') WHERE a.id IS NULL;",
+            "SELECT e.firstName, e.lastName, e.email FROM EMPLOYEE e LEFT JOIN WORKS_ON w ON e.id = a.employeeId AND a.date >= date('now', '-7 days') WHERE a.id IS NULL;",
           explanation:
             "این کوئری کارمندان غایب را با استفاده از LEFT JOIN شناسایی می‌کند.",
           difficulty: "intermediate",
@@ -2013,7 +2020,7 @@ export const practiceQuestions = {
             "از GROUP BY روی status استفاده کنید",
           ],
           solution:
-            "SELECT status, ROUND(AVG(julianday(endDate) - julianday(startDate)), 1) AS avg_duration_days FROM projects WHERE endDate IS NOT NULL GROUP BY status;",
+            "SELECT status, ROUND(AVG(julianday(endDate) - julianday(startDate)), 1) AS avg_duration_days FROM PROJECT WHERE endDate IS NOT NULL GROUP BY status;",
           explanation:
             "این کوئری عملکرد پروژه‌ها را بر اساس وضعیت تحلیل می‌کند.",
           difficulty: "intermediate",
@@ -2031,7 +2038,7 @@ export const practiceQuestions = {
             "شرط تعداد کارمند > 10 در HAVING قرار دهید",
           ],
           solution:
-            "SELECT d.name AS department_name, COUNT(e.id) AS employee_count, ROUND(AVG(e.salary), 0) AS avg_salary FROM employees e JOIN departments d ON e.departmentId = d.id GROUP BY d.id, d.name HAVING COUNT(e.id) > 10;",
+            "SELECT d.name AS department_name, COUNT(e.id) AS employee_count, ROUND(AVG(e.salary), 0) AS avg_salary FROM EMPLOYEE e JOIN DEPARTMENT d ON e.departmentId = d.id GROUP BY d.id, d.name HAVING COUNT(e.id) > 10;",
           explanation:
             "این کوئری بخش‌های بزرگ شرکت را با تحلیل تعداد کارمند و حقوق شناسایی می‌کند.",
           difficulty: "intermediate",
@@ -2049,7 +2056,7 @@ export const practiceQuestions = {
             "روزهای کاری ماه جاری را 22 در نظر بگیرید",
           ],
           solution:
-            "SELECT d.name AS department_name, ROUND((COUNT(a.id) * 100.0) / (COUNT(DISTINCT e.id) * 22), 2) AS attendance_rate FROM departments d JOIN employees e ON d.id = e.departmentId LEFT JOIN attendances a ON e.id = a.employeeId AND strftime('%Y-%m', a.date) = strftime('%Y-%m', 'now') GROUP BY d.id, d.name;",
+            "SELECT d.name AS department_name, ROUND((COUNT(a.id) * 100.0) / (COUNT(DISTINCT e.id) * 22), 2) AS attendance_rate FROM DEPARTMENT d JOIN EMPLOYEE e ON d.id = e.departmentId LEFT JOIN WORKS_ON w ON e.id = a.employeeId AND strftime('%Y-%m', a.date) = strftime('%Y-%m', 'now') GROUP BY d.id, d.name;",
           explanation:
             "این کوئری پیچیده نرخ حضور هر بخش را برای ارزیابی عملکرد محاسبه می‌کند.",
           difficulty: "intermediate",
@@ -2068,7 +2075,7 @@ export const practiceQuestions = {
             "درصد را با تقسیم روزهای حضور بر کل روزهای کاری محاسبه کنید",
           ],
           solution:
-            "SELECT e.firstName, e.lastName, (COUNT(a.id) * 100.0 / 22) AS attendance_percentage FROM employees e LEFT JOIN attendances a ON e.id = a.employeeId AND strftime('%Y-%m', a.date) = strftime('%Y-%m', 'now') GROUP BY e.id, e.firstName, e.lastName;",
+            "SELECT e.firstName, e.lastName, (COUNT(a.id) * 100.0 / 22) AS attendance_percentage FROM EMPLOYEE e LEFT JOIN WORKS_ON w ON e.id = a.employeeId AND strftime('%Y-%m', a.date) = strftime('%Y-%m', 'now') GROUP BY e.id, e.firstName, e.lastName;",
           explanation:
             "این کوئری پیچیده درصد حضور هر کارمند را بر اساس 22 روز کاری در ماه محاسبه می‌کند.",
           difficulty: "advanced",
@@ -2091,7 +2098,7 @@ export const practiceQuestions = {
             "فقط رتبه‌های 1، 2، 3 را انتخاب کنید",
           ],
           solution:
-            "WITH ranked_salaries AS (SELECT e.firstName, e.lastName, e.salary, d.name AS department_name, RANK() OVER (PARTITION BY d.id ORDER BY e.salary DESC) AS rank FROM employees e JOIN departments d ON e.departmentId = d.id) SELECT department_name, CONCAT(firstName, ' ', lastName) AS employee_name, salary, rank FROM ranked_salaries WHERE rank <= 3 ORDER BY department_name, rank;",
+            "WITH ranked_salaries AS (SELECT e.firstName, e.lastName, e.salary, d.name AS department_name, RANK() OVER (PARTITION BY d.id ORDER BY e.salary DESC) AS rank FROM EMPLOYEE e JOIN DEPARTMENT d ON e.departmentId = d.id) SELECT department_name, CONCAT(firstName, ' ', lastName) AS employee_name, salary, rank FROM ranked_salaries WHERE rank <= 3 ORDER BY department_name, rank;",
           explanation:
             "این کوئری از Window Function برای رتبه‌بندی حقوق در هر بخش استفاده می‌کند.",
           difficulty: "advanced",
@@ -2115,7 +2122,7 @@ export const practiceQuestions = {
             "سپس تغییرات نسبت به ماه قبل را بدست آورید",
           ],
           solution:
-            "WITH monthly_attendance AS (SELECT strftime('%Y-%m', date) AS month_year, strftime('%m', date) AS month, strftime('%Y', date) AS year, COUNT(*) AS total_attendance FROM attendances WHERE date >= date('now', '-6 months') GROUP BY strftime('%Y-%m', date)) SELECT month, year, total_attendance, LAG(total_attendance) OVER (ORDER BY month_year) AS previous_month, ROUND(((total_attendance - LAG(total_attendance) OVER (ORDER BY month_year)) * 100.0 / LAG(total_attendance) OVER (ORDER BY month_year)), 2) AS growth_rate FROM monthly_attendance;",
+            "WITH monthly_attendance AS (SELECT strftime('%Y-%m', date) AS month_year, strftime('%m', date) AS month, strftime('%Y', date) AS year, COUNT(*) AS total_attendance FROM WORKS_ON WHERE date >= date('now', '-6 months') GROUP BY strftime('%Y-%m', date)) SELECT month, year, total_attendance, LAG(total_attendance) OVER (ORDER BY month_year) AS previous_month, ROUND(((total_attendance - LAG(total_attendance) OVER (ORDER BY month_year)) * 100.0 / LAG(total_attendance) OVER (ORDER BY month_year)), 2) AS growth_rate FROM monthly_attendance;",
           explanation:
             "این کوئری از CTE و Window Function برای تحلیل روند حضور استفاده می‌کند.",
           difficulty: "advanced",
@@ -2138,7 +2145,7 @@ export const practiceQuestions = {
             "کارمندان بالاتر از میانگین را پیدا کنید",
           ],
           solution:
-            "WITH employee_hours AS (SELECT e.id, CONCAT(e.firstName, ' ', e.lastName) AS employee_name, COUNT(a.id) * 8 AS monthly_hours FROM employees e LEFT JOIN attendances a ON e.id = a.employeeId AND strftime('%Y-%m', a.date) = strftime('%Y-%m', 'now') GROUP BY e.id, e.firstName, e.lastName), company_avg AS (SELECT AVG(monthly_hours) AS avg_hours FROM employee_hours) SELECT eh.employee_name, eh.monthly_hours, ROUND(ca.avg_hours, 1) AS avg_company_hours, eh.monthly_hours - ca.avg_hours AS extra_hours FROM employee_hours eh CROSS JOIN company_avg ca WHERE eh.monthly_hours > ca.avg_hours ORDER BY extra_hours DESC;",
+            "WITH employee_hours AS (SELECT e.id, CONCAT(e.firstName, ' ', e.lastName) AS employee_name, COUNT(a.id) * 8 AS monthly_hours FROM EMPLOYEE e LEFT JOIN WORKS_ON w ON e.id = a.employeeId AND strftime('%Y-%m', a.date) = strftime('%Y-%m', 'now') GROUP BY e.id, e.firstName, e.lastName), company_avg AS (SELECT AVG(monthly_hours) AS avg_hours FROM employee_hours) SELECT eh.employee_name, eh.monthly_hours, ROUND(ca.avg_hours, 1) AS avg_company_hours, eh.monthly_hours - ca.avg_hours AS extra_hours FROM employee_hours eh CROSS JOIN company_avg ca WHERE eh.monthly_hours > ca.avg_hours ORDER BY extra_hours DESC;",
           explanation:
             "این کوئری کارمندان فعال‌تر از میانگین شرکت را شناسایی می‌کند.",
           difficulty: "advanced",
@@ -2161,7 +2168,7 @@ export const practiceQuestions = {
             "از فرمول ساده برای محاسبه امتیاز استفاده کنید",
           ],
           solution:
-            "WITH project_metrics AS (SELECT p.name AS project_name, COALESCE(julianday(p.endDate) - julianday(p.startDate), julianday('now') - julianday(p.startDate)) AS duration_days, (SELECT COUNT(DISTINCT e.departmentId) FROM employees e LIMIT 1) + (p.id % 5) AS team_size FROM projects p WHERE p.startDate IS NOT NULL), efficiency_calc AS (SELECT project_name, ROUND(duration_days, 0) AS duration_days, team_size, ROUND((1000.0 / (duration_days + 1)) * (10.0 / (team_size + 1)), 2) AS efficiency_score FROM project_metrics) SELECT * FROM efficiency_calc ORDER BY efficiency_score DESC;",
+            "WITH project_metrics AS (SELECT p.name AS project_name, COALESCE(julianday(p.endDate) - julianday(p.startDate), julianday('now') - julianday(p.startDate)) AS duration_days, (SELECT COUNT(DISTINCT e.departmentId) FROM EMPLOYEE e LIMIT 1) + (p.id % 5) AS team_size FROM PROJECT p WHERE p.startDate IS NOT NULL), efficiency_calc AS (SELECT project_name, ROUND(duration_days, 0) AS duration_days, team_size, ROUND((1000.0 / (duration_days + 1)) * (10.0 / (team_size + 1)), 2) AS efficiency_score FROM project_metrics) SELECT * FROM efficiency_calc ORDER BY efficiency_score DESC;",
           explanation:
             "این کوئری پیچیده بهره‌وری پروژه‌ها را بر اساس معیارهای مختلف ارزیابی می‌کند.",
           difficulty: "advanced",
@@ -2184,7 +2191,7 @@ export const practiceQuestions = {
             "از CASE WHEN برای تعیین سطح ریسک استفاده کنید",
           ],
           solution:
-            "WITH attendance_analysis AS (SELECT e.id, CONCAT(e.firstName, ' ', e.lastName) AS employee_name, COUNT(CASE WHEN a.date >= date('now', '-2 months') THEN 1 END) AS recent_attendance, COUNT(a.id) AS total_attendance, COUNT(CASE WHEN a.date >= date('now', '-2 months') THEN 1 END) / 2.0 AS recent_monthly_avg, COUNT(a.id) / MAX(1, ROUND((julianday('now') - julianday(e.hireDate)) / 30.0)) AS overall_monthly_avg FROM employees e LEFT JOIN attendances a ON e.id = a.employeeId GROUP BY e.id, e.firstName, e.lastName, e.hireDate) SELECT employee_name, recent_attendance, total_attendance, CASE WHEN recent_monthly_avg < overall_monthly_avg * 0.8 THEN 'بالا' WHEN recent_monthly_avg < overall_monthly_avg * 0.9 THEN 'متوسط' ELSE 'پایین' END AS risk_level FROM attendance_analysis WHERE total_attendance > 10 ORDER BY recent_monthly_avg / NULLIF(overall_monthly_avg, 0) ASC;",
+            "WITH attendance_analysis AS (SELECT e.id, CONCAT(e.firstName, ' ', e.lastName) AS employee_name, COUNT(CASE WHEN a.date >= date('now', '-2 months') THEN 1 END) AS recent_attendance, COUNT(a.id) AS total_attendance, COUNT(CASE WHEN a.date >= date('now', '-2 months') THEN 1 END) / 2.0 AS recent_monthly_avg, COUNT(a.id) / MAX(1, ROUND((julianday('now') - julianday(e.hireDate)) / 30.0)) AS overall_monthly_avg FROM EMPLOYEE e LEFT JOIN WORKS_ON w ON e.id = a.employeeId GROUP BY e.id, e.firstName, e.lastName, e.hireDate) SELECT employee_name, recent_attendance, total_attendance, CASE WHEN recent_monthly_avg < overall_monthly_avg * 0.8 THEN 'بالا' WHEN recent_monthly_avg < overall_monthly_avg * 0.9 THEN 'متوسط' ELSE 'پایین' END AS risk_level FROM attendance_analysis WHERE total_attendance > 10 ORDER BY recent_monthly_avg / NULLIF(overall_monthly_avg, 0) ASC;",
           explanation:
             "این کوئری پیشرفته الگوهای حضور را تحلیل کرده و کارمندان در معرض ریسک را شناسایی می‌کند.",
           difficulty: "advanced",
@@ -2206,7 +2213,7 @@ export const practiceQuestions = {
             "از self join روی departments استفاده کنید",
           ],
           solution:
-            "WITH dept_projects AS (SELECT d.name AS dept_name, d.id AS dept_id, p.id AS project_id FROM departments d JOIN employees e ON d.id = e.departmentId JOIN projects p ON e.id % 3 = p.id % 3), collaboration_matrix AS (SELECT dp1.dept_name AS department1, dp2.dept_name AS department2, COUNT(*) AS shared_projects FROM dept_projects dp1 JOIN dept_projects dp2 ON dp1.project_id = dp2.project_id AND dp1.dept_id < dp2.dept_id GROUP BY dp1.dept_name, dp2.dept_name) SELECT department1, department2, shared_projects AS collaboration_score FROM collaboration_matrix WHERE shared_projects > 0 ORDER BY collaboration_score DESC;",
+            "WITH dept_projects AS (SELECT d.name AS dept_name, d.id AS dept_id, p.id AS project_id FROM DEPARTMENT d JOIN EMPLOYEE e ON d.id = e.departmentId JOIN PROJECT p ON e.id % 3 = p.id % 3), collaboration_matrix AS (SELECT dp1.dept_name AS department1, dp2.dept_name AS department2, COUNT(*) AS shared_projects FROM dept_projects dp1 JOIN dept_projects dp2 ON dp1.project_id = dp2.project_id AND dp1.dept_id < dp2.dept_id GROUP BY dp1.dept_name, dp2.dept_name) SELECT department1, department2, shared_projects AS collaboration_score FROM collaboration_matrix WHERE shared_projects > 0 ORDER BY collaboration_score DESC;",
           explanation: "این کوئری شبکه همکاری بین بخش‌ها را تحلیل می‌کند.",
           difficulty: "advanced",
           points: 85,
@@ -2228,7 +2235,7 @@ export const practiceQuestions = {
             "توصیه بر اساس درصد استفاده",
           ],
           solution:
-            "WITH dept_capacity AS (SELECT d.name AS department_name, COUNT(e.id) AS employee_count, COUNT(e.id) * 8 * 22 AS monthly_capacity FROM departments d LEFT JOIN employees e ON d.id = e.departmentId GROUP BY d.id, d.name), dept_utilization AS (SELECT dc.department_name, dc.employee_count, dc.monthly_capacity, COUNT(p.id) * 100 AS current_load FROM dept_capacity dc LEFT JOIN employees e ON dc.department_name = (SELECT d2.name FROM departments d2 WHERE d2.id = e.departmentId) LEFT JOIN projects p ON e.id % 2 = p.id % 2 AND p.status = 'active' GROUP BY dc.department_name, dc.employee_count, dc.monthly_capacity) SELECT department_name, monthly_capacity - current_load AS available_capacity, ROUND((current_load * 100.0 / monthly_capacity), 2) AS utilization_rate, CASE WHEN (current_load * 100.0 / monthly_capacity) > 80 THEN 'نیاز به نیروی بیشتر' WHEN (current_load * 100.0 / monthly_capacity) < 50 THEN 'ظرفیت اضافی موجود' ELSE 'تخصیص مناسب' END AS recommendation FROM dept_utilization ORDER BY utilization_rate DESC;",
+            "WITH dept_capacity AS (SELECT d.name AS department_name, COUNT(e.id) AS employee_count, COUNT(e.id) * 8 * 22 AS monthly_capacity FROM DEPARTMENT d LEFT JOIN EMPLOYEE e ON d.id = e.departmentId GROUP BY d.id, d.name), dept_utilization AS (SELECT dc.department_name, dc.employee_count, dc.monthly_capacity, COUNT(p.id) * 100 AS current_load FROM dept_capacity dc LEFT JOIN EMPLOYEE e ON dc.department_name = (SELECT d2.name FROM DEPARTMENT d2 WHERE d2.id = e.departmentId) LEFT JOIN PROJECT p ON e.id % 2 = p.id % 2 AND p.status = 'active' GROUP BY dc.department_name, dc.employee_count, dc.monthly_capacity) SELECT department_name, monthly_capacity - current_load AS available_capacity, ROUND((current_load * 100.0 / monthly_capacity), 2) AS utilization_rate, CASE WHEN (current_load * 100.0 / monthly_capacity) > 80 THEN 'نیاز به نیروی بیشتر' WHEN (current_load * 100.0 / monthly_capacity) < 50 THEN 'ظرفیت اضافی موجود' ELSE 'تخصیص مناسب' END AS recommendation FROM dept_utilization ORDER BY utilization_rate DESC;",
           explanation:
             "این کوئری بهینه‌سازی منابع انسانی را برای مدیریت پروژه‌ها ارائه می‌دهد.",
           difficulty: "advanced",
@@ -2251,7 +2258,7 @@ export const practiceQuestions = {
             "روند عملکرد بر اساس حضور اخیر",
           ],
           solution:
-            "WITH employee_lifecycle AS (SELECT e.id, CONCAT(e.firstName, ' ', e.lastName) AS employee_name, ROUND((julianday('now') - julianday(e.hireDate)) / 30.0, 1) AS tenure_months, COUNT(CASE WHEN a.date >= date('now', '-3 months') THEN 1 END) AS recent_attendance, COUNT(CASE WHEN a.date >= date('now', '-6 months') AND a.date < date('now', '-3 months') THEN 1 END) AS previous_attendance FROM employees e LEFT JOIN attendances a ON e.id = a.employeeId GROUP BY e.id, e.firstName, e.lastName, e.hireDate), stage_analysis AS (SELECT employee_name, tenure_months, CASE WHEN tenure_months < 6 THEN 'کارمند جدید' WHEN tenure_months < 24 THEN 'کارمند میانی' WHEN tenure_months < 60 THEN 'کارمند باتجربه' ELSE 'کارمند ارشد' END AS lifecycle_stage, CASE WHEN recent_attendance > previous_attendance THEN 'صعودی' WHEN recent_attendance < previous_attendance THEN 'نزولی' ELSE 'ثابت' END AS performance_trend FROM employee_lifecycle) SELECT * FROM stage_analysis ORDER BY tenure_months DESC;",
+            "WITH employee_lifecycle AS (SELECT e.id, CONCAT(e.firstName, ' ', e.lastName) AS employee_name, ROUND((julianday('now') - julianday(e.hireDate)) / 30.0, 1) AS tenure_months, COUNT(CASE WHEN a.date >= date('now', '-3 months') THEN 1 END) AS recent_attendance, COUNT(CASE WHEN a.date >= date('now', '-6 months') AND a.date < date('now', '-3 months') THEN 1 END) AS previous_attendance FROM EMPLOYEE e LEFT JOIN WORKS_ON w ON e.id = a.employeeId GROUP BY e.id, e.firstName, e.lastName, e.hireDate), stage_analysis AS (SELECT employee_name, tenure_months, CASE WHEN tenure_months < 6 THEN 'کارمند جدید' WHEN tenure_months < 24 THEN 'کارمند میانی' WHEN tenure_months < 60 THEN 'کارمند باتجربه' ELSE 'کارمند ارشد' END AS lifecycle_stage, CASE WHEN recent_attendance > previous_attendance THEN 'صعودی' WHEN recent_attendance < previous_attendance THEN 'نزولی' ELSE 'ثابت' END AS performance_trend FROM employee_lifecycle) SELECT * FROM stage_analysis ORDER BY tenure_months DESC;",
           explanation:
             "این کوئری پیشرفته چرخه حیات کارمندان را برای مدیریت منابع انسانی تحلیل می‌کند.",
           difficulty: "advanced",
@@ -2277,7 +2284,7 @@ export const practiceQuestions = {
             "نمره کل = مجموع امتیازها",
           ],
           solution:
-            "WITH performance_metrics AS (SELECT e.id, CONCAT(e.firstName, ' ', e.lastName) AS employee_name, COUNT(CASE WHEN a.date >= date('now', '-1 month') THEN 1 END) AS monthly_attendance, ROUND((julianday('now') - julianday(e.hireDate)) / 365.0, 1) AS years_of_service, (e.id % 5) + 1 AS project_count FROM employees e LEFT JOIN attendances a ON e.id = a.employeeId GROUP BY e.id, e.firstName, e.lastName, e.hireDate), score_calculation AS (SELECT employee_name, ROUND((monthly_attendance * 40.0 / 22), 1) AS attendance_score, ROUND(LEAST(years_of_service * 10, 30), 1) AS tenure_score, ROUND(LEAST(project_count * 5, 30), 1) AS project_score FROM performance_metrics), final_evaluation AS (SELECT employee_name, attendance_score, tenure_score, project_score, ROUND(attendance_score + tenure_score + project_score, 1) AS total_score FROM score_calculation) SELECT employee_name, attendance_score, tenure_score, project_score, total_score, CASE WHEN total_score >= 90 THEN 'عالی' WHEN total_score >= 75 THEN 'خوب' WHEN total_score >= 60 THEN 'قابل قبول' ELSE 'نیاز به بهبود' END AS grade FROM final_evaluation ORDER BY total_score DESC;",
+            "WITH performance_metrics AS (SELECT e.id, CONCAT(e.firstName, ' ', e.lastName) AS employee_name, COUNT(CASE WHEN a.date >= date('now', '-1 month') THEN 1 END) AS monthly_attendance, ROUND((julianday('now') - julianday(e.hireDate)) / 365.0, 1) AS years_of_service, (e.id % 5) + 1 AS project_count FROM EMPLOYEE e LEFT JOIN WORKS_ON w ON e.id = a.employeeId GROUP BY e.id, e.firstName, e.lastName, e.hireDate), score_calculation AS (SELECT employee_name, ROUND((monthly_attendance * 40.0 / 22), 1) AS attendance_score, ROUND(LEAST(years_of_service * 10, 30), 1) AS tenure_score, ROUND(LEAST(project_count * 5, 30), 1) AS project_score FROM performance_metrics), final_evaluation AS (SELECT employee_name, attendance_score, tenure_score, project_score, ROUND(attendance_score + tenure_score + project_score, 1) AS total_score FROM score_calculation) SELECT employee_name, attendance_score, tenure_score, project_score, total_score, CASE WHEN total_score >= 90 THEN 'عالی' WHEN total_score >= 75 THEN 'خوب' WHEN total_score >= 60 THEN 'قابل قبول' ELSE 'نیاز به بهبود' END AS grade FROM final_evaluation ORDER BY total_score DESC;",
           explanation:
             "این کوئری پیچیده سیستم جامع ارزیابی عملکرد کارمندان را پیاده‌سازی می‌کند.",
           difficulty: "advanced",
