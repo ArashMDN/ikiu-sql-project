@@ -132,14 +132,14 @@ const SQLPracticeInterface = () => {
     const startTime = Date.now();
 
     try {
-      const response = await fetch("/api/sql/execute", {
+      const response = await fetch("/api/sql/validate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          query: userQuery,
-          database: selectedDatabase,
+          userQuery,
+          solutionQuery: currentQuestion.solution,
         }),
       });
 
@@ -147,24 +147,24 @@ const SQLPracticeInterface = () => {
       const endTime = Date.now();
       setExecutionTime(endTime - startTime);
 
-      // Always set the result to show to user
-      setQueryResult(result);
+      if (result.isValidationError) {
+        setQueryResult({ success: false, error: result.error });
+        message.error(result.error);
+        return;
+      }
 
-      if (result.success) {
-        // Check if query is correct (basic validation)
-        if (result.data && result.data.length > 0) {
-          const isCorrect = validateAnswer(result.data);
-          if (isCorrect) {
-            message.success("آفرین! جواب شما صحیح است!");
-            saveProgress(currentQuestion.id);
-          } else {
-            message.info("کوئری اجرا شد، اما ممکن است نتیجه کامل نباشد");
-          }
-        } else {
-          message.info("کوئری اجرا شد اما نتیجه‌ای برنگرداند");
-        }
+      setQueryResult({
+        success: true,
+        data: result.userResult,
+      });
+
+      if (result.isCorrect) {
+        message.success("آفرین! جواب شما صحیح است!");
+        saveProgress(currentQuestion.id);
       } else {
-        message.error(result.error || "خطا در اجرای کوئری");
+        message.warning(
+          "کوئری اجرا شد، اما نتیجه نادرست است. دوباره تلاش کنید!"
+        );
       }
     } catch (error) {
       console.error("Error executing query:", error);
@@ -188,7 +188,7 @@ const SQLPracticeInterface = () => {
       const expectedColumns = currentQuestion.expectedColumns;
 
       // Check if all expected columns exist (flexible validation)
-      return expectedColumns.some((col) =>
+      return expectedColumns.every((col) =>
         resultColumns.some((resCol) =>
           resCol.toLowerCase().includes(col.toLowerCase())
         )
