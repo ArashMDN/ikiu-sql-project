@@ -251,9 +251,9 @@ export const practiceQuestions = {
             "شرط WHERE برای فیلتر مبلغ اضافه کنید",
           ],
           solution:
-            "SELECT o.id AS order_id, CONCAT(c.firstName, ' ', c.lastName) AS customer_name, o.totalAmount AS total_amount FROM orders o JOIN customers c ON o.customerId = c.id WHERE o.totalAmount > 2000000;",
+            "SELECT o.id AS order_id, c.firstName || ' ' || c.lastName AS customer_name, o.totalAmount AS total_amount FROM orders o JOIN customers c ON o.customerId = c.id WHERE o.totalAmount > 2000000;",
           explanation:
-            "این کوئری سفارشات پردرآمد را با اطلاعات مشتری نمایش می‌دهد.",
+            "این کوئری سفارشات پردرآمد را با اطلاعات مشتری نمایش می‌دهد. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "intermediate",
           points: 35,
         },
@@ -285,9 +285,9 @@ export const practiceQuestions = {
             "از تابع MAX برای آخرین تاریخ استفاده کنید",
           ],
           solution:
-            "SELECT CONCAT(c.firstName, ' ', c.lastName) AS customer_name, MAX(o.orderDate) AS last_order_date FROM customers c JOIN orders o ON c.id = o.customerId GROUP BY c.id, c.firstName, c.lastName;",
+            "SELECT c.firstName || ' ' || c.lastName AS customer_name, MAX(o.orderDate) AS last_order_date FROM customers c JOIN orders o ON c.id = o.customerId GROUP BY c.id, c.firstName, c.lastName;",
           explanation:
-            "این کوئری آخرین سفارش هر مشتری را با استفاده از تابع MAX پیدا می‌کند.",
+            "این کوئری آخرین سفارش هر مشتری را با استفاده از تابع MAX پیدا می‌کند. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "intermediate",
           points: 40,
         },
@@ -355,9 +355,9 @@ export const practiceQuestions = {
             "از ORDER BY و LIMIT برای 5 نفر اول استفاده کنید",
           ],
           solution:
-            "SELECT CONCAT(c.firstName, ' ', c.lastName) AS customer_name, SUM(o.totalAmount) AS total_spent FROM customers c JOIN orders o ON c.id = o.customerId GROUP BY c.id, c.firstName, c.lastName ORDER BY total_spent DESC LIMIT 5;",
+            "SELECT c.firstName || ' ' || c.lastName AS customer_name, SUM(o.totalAmount) AS total_spent FROM customers c JOIN orders o ON c.id = o.customerId GROUP BY c.id, c.firstName, c.lastName ORDER BY total_spent DESC LIMIT 5;",
           explanation:
-            "این کوئری مشتریان را بر اساس مجموع خریدهایشان مرتب کرده و 5 نفر اول را نمایش می‌دهد.",
+            "این کوئری مشتریان را بر اساس مجموع خریدهایشان مرتب کرده و 5 نفر اول را نمایش می‌دهد. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "intermediate",
           points: 45,
         },
@@ -398,7 +398,7 @@ export const practiceQuestions = {
             "سپس با LAG فروش ماه قبل را بدست آورید",
           ],
           solution:
-            "WITH monthly_sales AS (SELECT strftime('%Y-%m', orderDate) AS month_year, strftime('%m', orderDate) AS month, strftime('%Y', orderDate) AS year, SUM(totalAmount) AS sales FROM orders GROUP BY strftime('%Y-%m', orderDate)) SELECT month, year, sales AS current_sales, LAG(sales) OVER (ORDER BY month_year) AS previous_sales, ROUND(((sales - LAG(sales) OVER (ORDER BY month_year)) * 100.0 / LAG(sales) OVER (ORDER BY month_year)), 2) AS growth_percentage FROM monthly_sales;",
+            "WITH monthly_sales AS (SELECT strftime('%Y-%m', orderDate) AS month_year, strftime('%m', orderDate) AS month, strftime('%Y', orderDate) AS year, SUM(totalAmount) AS sales FROM orders GROUP BY strftime('%Y-%m', orderDate)) SELECT month, year, sales AS current_sales, LAG(sales, 1, 0) OVER (ORDER BY month_year) AS previous_sales, ROUND(((sales - LAG(sales, 1, 0) OVER (ORDER BY month_year)) * 100.0 / LAG(sales, 1, 0) OVER (ORDER BY month_year)), 2) AS growth_percentage FROM monthly_sales;",
           explanation:
             "این کوئری از CTE و Window Function برای محاسبه رشد ماهانه فروش استفاده می‌کند.",
           difficulty: "advanced",
@@ -421,9 +421,9 @@ export const practiceQuestions = {
             "Monetary = مجموع مبلغ خریدها",
           ],
           solution:
-            "SELECT CONCAT(c.firstName, ' ', c.lastName) AS customer_name, julianday('now') - julianday(MAX(o.orderDate)) AS recency_days, COUNT(o.id) AS frequency, SUM(o.totalAmount) AS monetary FROM customers c JOIN orders o ON c.id = o.customerId GROUP BY c.id, c.firstName, c.lastName ORDER BY monetary DESC;",
+            "SELECT c.firstName || ' ' || c.lastName AS customer_name, julianday('now') - julianday(MAX(o.orderDate)) AS recency_days, COUNT(o.id) AS frequency, SUM(o.totalAmount) AS monetary FROM customers c JOIN orders o ON c.id = o.customerId GROUP BY c.id, c.firstName, c.lastName ORDER BY monetary DESC;",
           explanation:
-            "این کوئری تحلیل RFM مشتریان را برای بخش‌بندی و تحلیل رفتار مشتریان انجام می‌دهد.",
+            "این کوئری تحلیل RFM مشتریان را برای بخش‌بندی و تحلیل رفتار مشتریان انجام می‌دهد. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "advanced",
           points: 70,
         },
@@ -513,9 +513,9 @@ export const practiceQuestions = {
             "شرط: آخرین خرید > 90 روز پیش",
           ],
           solution:
-            "WITH customer_activity AS (SELECT c.id, CONCAT(c.firstName, ' ', c.lastName) AS customer_name, MAX(o.orderDate) AS last_order_date, COUNT(o.id) AS total_orders FROM customers c JOIN orders o ON c.id = o.customerId GROUP BY c.id, c.firstName, c.lastName HAVING COUNT(o.id) > 2) SELECT customer_name, last_order_date, ROUND(julianday('now') - julianday(last_order_date)) AS days_since_last_order, total_orders FROM customer_activity WHERE julianday('now') - julianday(last_order_date) > 90 ORDER BY days_since_last_order DESC;",
+            "WITH customer_activity AS (SELECT c.id, c.firstName || ' ' || c.lastName AS customer_name, MAX(o.orderDate) AS last_order_date, COUNT(o.id) AS total_orders FROM customers c JOIN orders o ON c.id = o.customerId GROUP BY c.id, c.firstName, c.lastName HAVING COUNT(o.id) > 2) SELECT customer_name, last_order_date, ROUND(julianday('now') - julianday(last_order_date)) AS days_since_last_order, total_orders FROM customer_activity WHERE julianday('now') - julianday(last_order_date) > 90 ORDER BY days_since_last_order DESC;",
           explanation:
-            "این کوئری مشتریان در معرض ریزش را شناسایی می‌کند تا بتوان استراتژی بازگرداندن آن‌ها را اعمال کرد.",
+            "این کوئری مشتریان در معرض ریزش را شناسایی می‌کند تا بتوان استراتژی بازگرداندن آن‌ها را اعمال کرد. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "advanced",
           points: 75,
         },
@@ -577,9 +577,9 @@ export const practiceQuestions = {
             "فرکانس = تعداد سفارشات / طول عمر (به ماه)",
           ],
           solution:
-            "WITH customer_metrics AS (SELECT c.id, CONCAT(c.firstName, ' ', c.lastName) AS customer_name, AVG(o.totalAmount) AS avg_order_value, COUNT(o.id) AS total_orders, (julianday(MAX(o.orderDate)) - julianday(MIN(o.orderDate))) / 30.0 AS lifespan_months FROM customers c JOIN orders o ON c.id = o.customerId GROUP BY c.id, c.firstName, c.lastName HAVING COUNT(o.id) > 1) SELECT customer_name, ROUND(avg_order_value, 2) AS avg_order_value, ROUND(total_orders / NULLIF(lifespan_months, 0), 2) AS purchase_frequency, ROUND(lifespan_months, 1) AS customer_lifespan, ROUND(avg_order_value * (total_orders / NULLIF(lifespan_months, 0)) * lifespan_months, 2) AS clv FROM customer_metrics WHERE lifespan_months > 0 ORDER BY clv DESC LIMIT 10;",
+            "WITH customer_metrics AS (SELECT c.id, c.firstName || ' ' || c.lastName AS customer_name, AVG(o.totalAmount) AS avg_order_value, COUNT(o.id) AS total_orders, (julianday(MAX(o.orderDate)) - julianday(MIN(o.orderDate))) / 30.0 AS lifespan_months FROM customers c JOIN orders o ON c.id = o.customerId GROUP BY c.id, c.firstName, c.lastName HAVING COUNT(o.id) > 1) SELECT customer_name, ROUND(avg_order_value, 2) AS avg_order_value, ROUND(total_orders / NULLIF(lifespan_months, 0), 2) AS purchase_frequency, ROUND(lifespan_months, 1) AS customer_lifespan, ROUND(avg_order_value * (total_orders / NULLIF(lifespan_months, 0)) * lifespan_months, 2) AS clv FROM customer_metrics WHERE lifespan_months > 0 ORDER BY clv DESC LIMIT 10;",
           explanation:
-            "این کوئری پیچیده ارزش طول عمر مشتری را محاسبه می‌کند که برای استراتژی‌های بازاریابی حیاتی است.",
+            "این کوئری پیچیده ارزش طول عمر مشتری را محاسبه می‌کند که برای استراتژی‌های بازاریابی حیاتی است. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "advanced",
           points: 100,
         },
@@ -710,13 +710,13 @@ export const practiceQuestions = {
           id: "school_basic_8",
           title: "نمرات بالای 18",
           description: "نمراتی که بالای 18 هستند را نمایش دهید.",
-          expectedColumns: ["score", "examDate"],
+          expectedColumns: ["score", "gradeDate"],
           hints: [
             "از جدول grades استفاده کنید",
             "شرط WHERE برای score > 18 اضافه کنید",
-            "score و examDate را انتخاب کنید",
+            "score و gradeDate را انتخاب کنید",
           ],
-          solution: "SELECT score, examDate FROM grades WHERE score > 18;",
+          solution: "SELECT score, gradeDate FROM grades WHERE score > 18;",
           explanation: "این کوئری نمرات عالی را از جدول grades فیلتر می‌کند.",
           difficulty: "beginner",
           points: 15,
@@ -919,14 +919,14 @@ export const practiceQuestions = {
           id: "school_inter_10",
           title: "آخرین امتحان هر درس",
           description: "آخرین تاریخ امتحان برای هر درس را نمایش دهید.",
-          expectedColumns: ["courseName", "last_exam_date"],
+          expectedColumns: ["courseName", "last_grade_date"],
           hints: [
             "از JOIN بین courses, enrollments و grades استفاده کنید",
             "از GROUP BY روی درس استفاده کنید",
             "از تابع MAX برای آخرین تاریخ استفاده کنید",
           ],
           solution:
-            "SELECT c.courseName, MAX(g.examDate) AS last_exam_date FROM courses c JOIN enrollments e ON c.id = e.courseId JOIN grades g ON e.studentId = g.studentId AND e.courseId = g.courseId GROUP BY c.id, c.courseName;",
+            "SELECT c.courseName, MAX(g.gradeDate) AS last_grade_date FROM courses c JOIN enrollments e ON c.id = e.courseId JOIN grades g ON e.studentId = g.studentId AND e.courseId = g.courseId GROUP BY c.id, c.courseName;",
           explanation:
             "این کوئری پیچیده آخرین تاریخ امتحان هر درس را با ترکیب چندین جدول محاسبه می‌کند.",
           difficulty: "intermediate",
@@ -970,7 +970,7 @@ export const practiceQuestions = {
             "سپس تغییرات نسبت به ماه قبل را بدست آورید",
           ],
           solution:
-            "WITH monthly_avg AS (SELECT strftime('%Y-%m', examDate) AS month_year, strftime('%m', examDate) AS month, strftime('%Y', examDate) AS year, AVG(score) AS avg_score FROM grades GROUP BY strftime('%Y-%m', examDate)) SELECT month, year, avg_score, LAG(avg_score) OVER (ORDER BY month_year) AS previous_avg, ROUND(avg_score - LAG(avg_score) OVER (ORDER BY month_year), 2) AS improvement FROM monthly_avg;",
+            "WITH monthly_avg AS (SELECT strftime('%Y-%m', gradeDate) AS month_year, strftime('%m', gradeDate) AS month, strftime('%Y', gradeDate) AS year, AVG(score) AS avg_score FROM grades GROUP BY strftime('%Y-%m', gradeDate)) SELECT month, year, avg_score, LAG(avg_score) OVER (ORDER BY month_year) AS previous_avg, ROUND(avg_score - LAG(avg_score) OVER (ORDER BY month_year), 2) AS improvement FROM monthly_avg;",
           explanation:
             "این کوئری از CTE و Window Function برای تحلیل روند عملکرد ماهانه استفاده می‌کند.",
           difficulty: "advanced",
@@ -1034,7 +1034,7 @@ export const practiceQuestions = {
             "از Window Function برای رتبه‌بندی تاریخ‌ها استفاده کنید",
           ],
           solution:
-            "WITH recent_grades AS (SELECT studentId, score, ROW_NUMBER() OVER (PARTITION BY studentId ORDER BY examDate DESC) AS rn FROM grades), student_stats AS (SELECT s.id, CONCAT(s.firstName, ' ', s.lastName) AS student_name, AVG(CASE WHEN rg.rn <= 3 THEN rg.score END) AS recent_avg, AVG(g.score) AS overall_avg FROM students s JOIN grades g ON s.id = g.studentId JOIN recent_grades rg ON s.id = rg.studentId GROUP BY s.id, s.firstName, s.lastName) SELECT student_name, ROUND(recent_avg, 2) AS recent_avg, ROUND(overall_avg, 2) AS overall_avg, CASE WHEN recent_avg < overall_avg - 2 THEN 'در معرض خطر' WHEN recent_avg > overall_avg + 1 THEN 'رو به بهبود' ELSE 'پایدار' END AS trend FROM student_stats WHERE recent_avg IS NOT NULL;",
+            "WITH recent_grades AS (SELECT studentId, score, ROW_NUMBER() OVER (PARTITION BY studentId ORDER BY gradeDate DESC) AS rn FROM grades), student_stats AS (SELECT s.id, CONCAT(s.firstName, ' ', s.lastName) AS student_name, AVG(CASE WHEN rg.rn <= 3 THEN rg.score END) AS recent_avg, AVG(g.score) AS overall_avg FROM students s JOIN grades g ON s.id = g.studentId JOIN recent_grades rg ON s.id = rg.studentId GROUP BY s.id, s.firstName, s.lastName) SELECT student_name, ROUND(recent_avg, 2) AS recent_avg, ROUND(overall_avg, 2) AS overall_avg, CASE WHEN recent_avg < overall_avg - 2 THEN 'در معرض خطر' WHEN recent_avg > overall_avg + 1 THEN 'رو به بهبود' ELSE 'پایدار' END AS trend FROM student_stats WHERE recent_avg IS NOT NULL;",
           explanation:
             "این کوئری پیشرفته از چندین CTE و Window Function برای تحلیل روند عملکرد دانش‌آموزان استفاده می‌کند.",
           difficulty: "advanced",
@@ -1155,7 +1155,14 @@ export const practiceQuestions = {
   library: {
     name: "سیستم مدیریت کتابخانه",
     description: "مدیریت کتاب‌ها، نویسندگان، اعضا و امانات",
-    tables: ["books", "authors", "members", "loans"],
+    tables: [
+      "books",
+      "authors",
+      "members",
+      "loans",
+      "publishers",
+      "book_authors",
+    ],
     questions: {
       beginner: [
         {
@@ -1257,9 +1264,10 @@ export const practiceQuestions = {
           expectedColumns: ["loanDate", "dueDate"],
           hints: [
             "از جدول loans استفاده کنید",
-            "شرط WHERE برای returned = 0 اضافه کنید",
+            "شرط WHERE برای status = 'active' اضافه کنید",
           ],
-          solution: "SELECT loanDate, dueDate FROM loans WHERE returned = 0;",
+          solution:
+            "SELECT loanDate, dueDate FROM loans WHERE status = 'active';",
           explanation: "این کوئری امانت‌های فعال کتابخانه را نمایش می‌دهد.",
           difficulty: "beginner",
           points: 15,
@@ -1325,9 +1333,9 @@ export const practiceQuestions = {
             "شرط WHERE برای وضعیت returned استفاده کنید",
           ],
           solution:
-            "SELECT b.title, CONCAT(m.firstName, ' ', m.lastName) AS member_name, l.loanDate AS loan_date FROM books b JOIN loans l ON b.id = l.bookId JOIN members m ON l.memberId = m.id WHERE l.returned = 0;",
+            "SELECT b.title, CONCAT(m.firstName, ' ', m.lastName) AS member_name, l.loanDate AS loan_date FROM books b JOIN loans l ON b.id = l.bookId JOIN members m ON l.memberId = m.id WHERE l.status = 'active';",
           explanation:
-            "این کوئری کتاب‌هایی را نمایش می‌دهد که هنوز برگردانده نشده‌اند.",
+            "این کوئری کتاب‌هایی را نمایش می‌دهد که هنوز برگردانده نشده‌اند. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "intermediate",
           points: 40,
         },
@@ -1344,7 +1352,7 @@ export const practiceQuestions = {
           solution:
             "SELECT CONCAT(m.firstName, ' ', m.lastName) AS member_name, COUNT(l.id) AS loan_count FROM members m JOIN loans l ON m.id = l.memberId GROUP BY m.id, m.firstName, m.lastName HAVING COUNT(l.id) > 5;",
           explanation:
-            "این کوئری اعضای فعال کتابخانه را بر اساس تعداد امانت‌هایشان شناسایی می‌کند.",
+            "این کوئری اعضای فعال کتابخانه را بر اساس تعداد امانت‌هایشان شناسایی می‌کند. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "intermediate",
           points: 45,
         },
@@ -1396,7 +1404,7 @@ export const practiceQuestions = {
           solution:
             "SELECT CONCAT(a.firstName, ' ', a.lastName) AS author_name, AVG(strftime('%Y', b.publishDate)) AS avg_publish_year FROM authors a JOIN book_authors ba ON a.id = ba.authorId JOIN books b ON ba.bookId = b.id GROUP BY a.id, a.firstName, a.lastName;",
           explanation:
-            "این کوئری میانگین دوره فعالیت هر نویسنده را بر اساس کتاب‌هایش محاسبه می‌کند.",
+            "این کوئری میانگین دوره فعالیت هر نویسنده را بر اساس کتاب‌هایش محاسبه می‌کند. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "intermediate",
           points: 35,
         },
@@ -1412,9 +1420,9 @@ export const practiceQuestions = {
             "روزهای تأخیر را با تفاضل تاریخ‌ها محاسبه کنید",
           ],
           solution:
-            "SELECT b.title, CONCAT(m.firstName, ' ', m.lastName) AS member_name, l.dueDate AS due_date, julianday('now') - julianday(l.dueDate) AS days_overdue FROM books b JOIN loans l ON b.id = l.bookId JOIN members m ON l.memberId = m.id WHERE l.returned = 0 AND l.dueDate < date('now');",
+            "SELECT b.title, CONCAT(m.firstName, ' ', m.lastName) AS member_name, l.dueDate AS due_date, julianday('now') - julianday(l.dueDate) AS days_overdue FROM books b JOIN loans l ON b.id = l.bookId JOIN members m ON l.memberId = m.id WHERE l.status = 'active' AND l.dueDate < date('now');",
           explanation:
-            "این کوئری امانت‌های معوقه را شناسایی کرده و تعداد روزهای تأخیر را محاسبه می‌کند.",
+            "این کوئری امانت‌های معوقه را شناسایی کرده و تعداد روزهای تأخیر را محاسبه می‌کند. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "intermediate",
           points: 50,
         },
@@ -1429,8 +1437,9 @@ export const practiceQuestions = {
             "از تابع MAX برای آخرین تاریخ استفاده کنید",
           ],
           solution:
-            "SELECT CONCAT(m.firstName, ' ', m.lastName) AS member_name, b.title AS last_book, MAX(l.loanDate) AS last_loan_date FROM members m JOIN loans l ON m.id = l.memberId JOIN books b ON l.bookId = b.id GROUP BY m.id, m.firstName, m.lastName;",
-          explanation: "این کوئری آخرین فعالیت امانت هر عضو را ردیابی می‌کند.",
+            "WITH ranked_loans AS (SELECT l.*, b.title, ROW_NUMBER() OVER(PARTITION BY l.memberId ORDER BY l.loanDate DESC) as rn FROM loans l JOIN books b ON l.bookId = b.id) SELECT m.firstName || ' ' || m.lastName AS member_name, rl.title AS last_book, rl.loanDate AS last_loan_date FROM members m JOIN ranked_loans rl ON m.id = rl.memberId WHERE rl.rn = 1;",
+          explanation:
+            "این کوئری آخرین فعالیت امانت هر عضو را ردیابی می‌کند. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "intermediate",
           points: 45,
         },
@@ -1447,7 +1456,7 @@ export const practiceQuestions = {
           solution:
             "SELECT CONCAT(a.firstName, ' ', a.lastName) AS author_name, COUNT(b.id) AS book_count FROM authors a LEFT JOIN book_authors ba ON a.id = ba.authorId LEFT JOIN books b ON ba.bookId = b.id GROUP BY a.id, a.firstName, a.lastName ORDER BY book_count DESC;",
           explanation:
-            "این کوئری تولیدات هر نویسنده را در کتابخانه شمارش می‌کند.",
+            "این کوئری تولیدات هر نویسنده را در کتابخانه شمارش می‌کند. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "intermediate",
           points: 35,
         },
@@ -1463,9 +1472,9 @@ export const practiceQuestions = {
             "از CASE WHEN برای تشخیص وضعیت امانت استفاده کنید",
           ],
           solution:
-            "SELECT b.title, CONCAT(m.firstName, ' ', m.lastName) AS member_name, CASE WHEN l.returned = 1 THEN julianday(l.returnDate) - julianday(l.loanDate) ELSE julianday('now') - julianday(l.loanDate) END AS loan_duration FROM books b JOIN loans l ON b.id = l.bookId JOIN members m ON l.memberId = m.id WHERE (CASE WHEN l.returned = 1 THEN julianday(l.returnDate) - julianday(l.loanDate) ELSE julianday('now') - julianday(l.loanDate) END) > 30;",
+            "SELECT b.title, CONCAT(m.firstName, ' ', m.lastName) AS member_name, CASE WHEN l.returnDate IS NOT NULL THEN julianday(l.returnDate) - julianday(l.loanDate) ELSE julianday('now') - julianday(l.loanDate) END AS loan_duration FROM books b JOIN loans l ON b.id = l.bookId JOIN members m ON l.memberId = m.id WHERE (CASE WHEN l.returnDate IS NOT NULL THEN julianday(l.returnDate) - julianday(l.loanDate) ELSE julianday('now') - julianday(l.loanDate) END) > 30;",
           explanation:
-            "این کوئری امانت‌های طولانی مدت را برای بررسی الگوهای استفاده شناسایی می‌کند.",
+            "این کوئری امانت‌های طولانی مدت را برای بررسی الگوهای استفاده شناسایی می‌کند. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "intermediate",
           points: 55,
         },
@@ -1483,7 +1492,7 @@ export const practiceQuestions = {
           solution:
             "SELECT CONCAT(a.firstName, ' ', a.lastName) AS author_name, COUNT(l.id) AS total_loans FROM authors a JOIN book_authors ba ON a.id = ba.authorId JOIN books b ON ba.bookId = b.id JOIN loans l ON b.id = l.bookId GROUP BY a.id, a.firstName, a.lastName HAVING COUNT(l.id) > 10 ORDER BY total_loans DESC;",
           explanation:
-            "این کوئری نویسندگان محبوب را بر اساس تعداد امانت کتاب‌هایشان شناسایی می‌کند.",
+            "این کوئری نویسندگان محبوب را بر اساس تعداد امانت کتاب‌هایشان شناسایی می‌کند. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "intermediate",
           points: 50,
         },
@@ -1523,7 +1532,7 @@ export const practiceQuestions = {
             "سپس تغییرات نسبت به ماه قبل را بدست آورید",
           ],
           solution:
-            "WITH monthly_loans AS (SELECT strftime('%Y-%m', loanDate) AS month_year, strftime('%m', loanDate) AS month, strftime('%Y', loanDate) AS year, COUNT(*) AS loan_count FROM loans GROUP BY strftime('%Y-%m', loanDate)) SELECT month, year, loan_count AS current_loans, LAG(loan_count) OVER (ORDER BY month_year) AS previous_loans, ROUND(((loan_count - LAG(loan_count) OVER (ORDER BY month_year)) * 100.0 / LAG(loan_count) OVER (ORDER BY month_year)), 2) AS growth_rate FROM monthly_loans;",
+            "WITH monthly_loans AS (SELECT strftime('%Y-%m', loanDate) AS month_year, strftime('%m', loanDate) AS month, strftime('%Y', loanDate) AS year, COUNT(*) AS loan_count FROM loans GROUP BY strftime('%Y-%m', loanDate)) SELECT month, year, loan_count AS current_loans, LAG(loan_count, 1, 0) OVER (ORDER BY month_year) AS previous_loans, ROUND(((loan_count - LAG(loan_count, 1, 0) OVER (ORDER BY month_year)) * 100.0 / LAG(loan_count, 1, 0) OVER (ORDER BY month_year)), 2) AS growth_rate FROM monthly_loans;",
           explanation:
             "این کوئری از CTE و Window Function برای تحلیل روند رشد امانت‌ها استفاده می‌کند.",
           difficulty: "advanced",
@@ -1546,7 +1555,7 @@ export const practiceQuestions = {
           solution:
             "WITH member_genre_stats AS (SELECT m.id, CONCAT(m.firstName, ' ', m.lastName) AS member_name, b.genre, COUNT(*) AS genre_count FROM members m JOIN loans l ON m.id = l.memberId JOIN books b ON l.bookId = b.id GROUP BY m.id, m.firstName, m.lastName, b.genre), member_totals AS (SELECT id, member_name, SUM(genre_count) AS total_loans FROM member_genre_stats GROUP BY id, member_name), top_genres AS (SELECT mgs.id, mgs.member_name, mgs.genre AS favorite_genre, mgs.genre_count, mt.total_loans, ROW_NUMBER() OVER (PARTITION BY mgs.id ORDER BY mgs.genre_count DESC) AS rn FROM member_genre_stats mgs JOIN member_totals mt ON mgs.id = mt.id) SELECT member_name, favorite_genre, ROUND((genre_count * 100.0 / total_loans), 2) AS genre_percentage FROM top_genres WHERE rn = 1 AND total_loans > 3 ORDER BY genre_percentage DESC;",
           explanation:
-            "این کوئری پیچیده الگوهای مطالعه اعضا را تحلیل کرده و ژانر مورد علاقه هر عضو را شناسایی می‌کند.",
+            "این کوئری پیچیده الگوهای مطالعه اعضا را تحلیل کرده و ژانر مورد علاقه هر عضو را شناسایی می‌کند. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "advanced",
           points: 90,
         },
@@ -1570,7 +1579,7 @@ export const practiceQuestions = {
           solution:
             "WITH book_loan_stats AS (SELECT b.id, b.title, CONCAT(a.firstName, ' ', a.lastName) AS author_name, COUNT(l.id) AS loan_count FROM books b LEFT JOIN loans l ON b.id = l.bookId LEFT JOIN book_authors ba ON b.id = ba.bookId LEFT JOIN authors a ON ba.authorId = a.id GROUP BY b.id, b.title, a.firstName, a.lastName), avg_stats AS (SELECT AVG(loan_count) AS avg_loans FROM book_loan_stats) SELECT bls.title, bls.author_name, bls.loan_count, ROUND(avgs.avg_loans, 2) AS avg_loans, ROUND((avgs.avg_loans - bls.loan_count), 2) AS underperformance FROM book_loan_stats bls CROSS JOIN avg_stats avgs WHERE bls.loan_count < avgs.avg_loans ORDER BY underperformance DESC;",
           explanation:
-            "این کوئری کتاب‌های کمتر استفاده شده را برای برنامه‌ریزی تبلیغات شناسایی می‌کند.",
+            "این کوئری کتاب‌های کمتر استفاده شده را برای برنامه‌ریزی تبلیغات شناسایی می‌کند. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "advanced",
           points: 80,
         },
@@ -1591,7 +1600,7 @@ export const practiceQuestions = {
             "دیر = برگشت بعد از سررسید",
           ],
           solution:
-            "WITH loan_analysis AS (SELECT b.genre, julianday(l.returnDate) - julianday(l.loanDate) AS loan_duration, CASE WHEN l.returnDate <= l.dueDate THEN 1 ELSE 0 END AS on_time FROM loans l JOIN books b ON l.bookId = b.id WHERE l.returned = 1 AND l.returnDate IS NOT NULL) SELECT genre, ROUND(AVG(loan_duration), 2) AS avg_loan_duration, ROUND((SUM(on_time) * 100.0 / COUNT(*)), 2) AS on_time_percentage, ROUND(((COUNT(*) - SUM(on_time)) * 100.0 / COUNT(*)), 2) AS late_percentage FROM loan_analysis GROUP BY genre ORDER BY avg_loan_duration DESC;",
+            "WITH loan_analysis AS (SELECT b.genre, julianday(l.returnDate) - julianday(l.loanDate) AS loan_duration, CASE WHEN l.returnDate <= l.dueDate THEN 1 ELSE 0 END AS on_time FROM loans l JOIN books b ON l.bookId = b.id WHERE l.returnDate IS NOT NULL) SELECT genre, ROUND(AVG(loan_duration), 2) AS avg_loan_duration, ROUND((SUM(on_time) * 100.0 / COUNT(*)), 2) AS on_time_percentage, ROUND(((COUNT(*) - SUM(on_time)) * 100.0 / COUNT(*)), 2) AS late_percentage FROM loan_analysis GROUP BY genre ORDER BY avg_loan_duration DESC;",
           explanation:
             "این کوئری الگوهای بازگشت کتاب را بر اساس ژانر تحلیل می‌کند.",
           difficulty: "advanced",
@@ -1685,7 +1694,7 @@ export const practiceQuestions = {
             "کاهش = امانت در حال کاهش",
           ],
           solution:
-            "WITH book_timeline AS (SELECT b.id, b.title, b.acquisitionDate, COUNT(l.id) AS total_loans, AVG(CASE WHEN l.loanDate >= date('now', '-3 months') THEN 1 ELSE 0 END) * COUNT(l.id) AS recent_activity, AVG(CASE WHEN l.loanDate >= date('now', '-6 months') AND l.loanDate < date('now', '-3 months') THEN 1 ELSE 0 END) * COUNT(l.id) AS previous_activity FROM books b LEFT JOIN loans l ON b.id = l.bookId GROUP BY b.id, b.title, b.acquisitionDate), lifecycle_analysis AS (SELECT title, ROUND((julianday('now') - julianday(acquisitionDate)) / 30.0, 1) AS months_since_acquisition, total_loans AS current_demand, CASE WHEN recent_activity > previous_activity * 1.2 THEN 'رشد' WHEN recent_activity >= previous_activity * 0.8 THEN 'بلوغ' WHEN recent_activity > 0 THEN 'کاهش' ELSE 'خواب' END AS lifecycle_stage, CASE WHEN recent_activity > previous_activity THEN 'صعودی' WHEN recent_activity < previous_activity THEN 'نزولی' ELSE 'ثابت' END AS trend FROM book_timeline WHERE months_since_acquisition > 3) SELECT title, lifecycle_stage, months_since_acquisition, current_demand, trend FROM lifecycle_analysis ORDER BY CASE lifecycle_stage WHEN 'رشد' THEN 1 WHEN 'بلوغ' THEN 2 WHEN 'کاهش' THEN 3 ELSE 4 END, current_demand DESC;",
+            "WITH book_timeline AS (SELECT b.id, b.title, b.publishDate as acquisitionDate, COUNT(l.id) AS total_loans, AVG(CASE WHEN l.loanDate >= date('now', '-3 months') THEN 1 ELSE 0 END) * COUNT(l.id) AS recent_activity, AVG(CASE WHEN l.loanDate >= date('now', '-6 months') AND l.loanDate < date('now', '-3 months') THEN 1 ELSE 0 END) * COUNT(l.id) AS previous_activity FROM books b LEFT JOIN loans l ON b.id = l.bookId GROUP BY b.id, b.title, b.publishDate), lifecycle_analysis AS (SELECT title, ROUND((julianday('now') - julianday(acquisitionDate)) / 30.0, 1) AS months_since_acquisition, total_loans AS current_demand, CASE WHEN recent_activity > previous_activity * 1.2 THEN 'رشد' WHEN recent_activity >= previous_activity * 0.8 THEN 'بلوغ' WHEN recent_activity > 0 THEN 'کاهش' ELSE 'خواب' END AS lifecycle_stage, CASE WHEN recent_activity > previous_activity THEN 'صعودی' WHEN recent_activity < previous_activity THEN 'نزولی' ELSE 'ثابت' END AS trend FROM book_timeline WHERE months_since_acquisition > 3) SELECT title, lifecycle_stage, months_since_acquisition, current_demand, trend FROM lifecycle_analysis ORDER BY CASE lifecycle_stage WHEN 'رشد' THEN 1 WHEN 'بلوغ' THEN 2 WHEN 'کاهش' THEN 3 ELSE 4 END, current_demand DESC;",
           explanation:
             "این کوئری پیشرفته چرخه حیات کتاب‌ها را تحلیل کرده و مرحله فعلی هر کتاب را مشخص می‌کند.",
           difficulty: "advanced",
@@ -1734,7 +1743,7 @@ export const practiceQuestions = {
           id: "comp_basic_1",
           title: "لیست همه کارمندان",
           description: "تمام کارمندان شرکت را نمایش دهید.",
-          expectedColumns: ["Ssn", "firstName", "Lname", "Salary"],
+          expectedColumns: ["Ssn", "Fname", "Lname", "Salary"],
           hints: ["از جدول EMPLOYEE استفاده کنید", "از SELECT * استفاده کنید"],
           solution: "SELECT * FROM EMPLOYEE;",
           explanation: "این کوئری لیست کامل کارمندان شرکت را نمایش می‌دهد.",
@@ -1775,13 +1784,13 @@ export const practiceQuestions = {
           title: "کارمندان با حقوق بالا",
           description:
             "کارمندانی که حقوق آن‌ها بالای 50 میلیون تومان است را نمایش دهید.",
-          expectedColumns: ["firstName", "lastName", "salary"],
+          expectedColumns: ["Fname", "Lname", "Salary"],
           hints: [
             "از شرط WHERE برای فیلتر حقوق استفاده کنید",
             "مبلغ 50 میلیون را 50000000 وارد کنید",
           ],
           solution:
-            "SELECT firstName, lastName, salary FROM EMPLOYEE WHERE salary > 50000000;",
+            "SELECT Fname, Lname, Salary FROM EMPLOYEE WHERE Salary > 50000000;",
           explanation:
             "این کوئری کارمندان با درآمد بالا را بر اساس حقوق فیلتر می‌کند.",
           difficulty: "beginner",
@@ -1792,16 +1801,14 @@ export const practiceQuestions = {
           title: "پروژه‌های فعال",
           description:
             "لیست پروژه‌هایی که هنوز خاتمه نیافته‌اند را نمایش دهید.",
-          expectedColumns: ["name", "startDate", "status"],
+          expectedColumns: ["Pname", "Plocation"],
           hints: [
-            "از جدول projects استفاده کنید",
-            "شرط WHERE برای status استفاده کنید",
-            "وضعیت 'active' را فیلتر کنید",
+            "از جدول PROJECT استفاده کنید",
+            "برای سادگی، تمام پروژه‌ها را فعال در نظر بگیرید",
           ],
-          solution:
-            "SELECT name, startDate, status FROM PROJECT WHERE status = 'active';",
+          solution: "SELECT Pname, Plocation FROM PROJECT;",
           explanation:
-            "این کوئری پروژه‌های در حال اجرا را از کل پروژه‌ها جدا می‌کند.",
+            "این کوئری تمام پروژه‌ها را نمایش می‌دهد. در این مدل، فیلد مشخصی برای وضعیت پروژه وجود ندارد.",
           difficulty: "beginner",
           points: 15,
         },
@@ -1809,13 +1816,12 @@ export const practiceQuestions = {
           id: "comp_basic_6",
           title: "کارمندان به ترتیب نام",
           description: "کارمندان را به ترتیب حروف الفبای نام مرتب کنید.",
-          expectedColumns: ["firstName", "lastName"],
+          expectedColumns: ["Fname", "Lname"],
           hints: [
-            "از ORDER BY firstName استفاده کنید",
+            "از ORDER BY Fname استفاده کنید",
             "برای مرتب‌سازی صعودی نیازی به ASC نیست",
           ],
-          solution:
-            "SELECT firstName, lastName FROM EMPLOYEE ORDER BY firstName;",
+          solution: "SELECT Fname, Lname FROM EMPLOYEE ORDER BY Fname;",
           explanation:
             "این کوئری کارمندان را به ترتیب الفبایی نام مرتب می‌کند.",
           difficulty: "beginner",
@@ -1823,64 +1829,66 @@ export const practiceQuestions = {
         },
         {
           id: "comp_basic_7",
-          title: "حضور امروز",
+          title: "ساعات کاری کارمندان",
           description:
-            "کارمندانی که امروز در شرکت حضور داشته‌اند را نمایش دهید.",
-          expectedColumns: ["employeeId", "date", "status"],
+            "ساعات کاری ثبت شده برای کارمندان در پروژه‌ها را نمایش دهید.",
+          expectedColumns: ["Essn", "Pno", "Hours"],
           hints: [
-            "از جدول attendances استفاده کنید",
-            "از تابع date('now') برای تاریخ امروز استفاده کنید",
-            "شرط WHERE date = date('now') اضافه کنید",
+            "از جدول WORKS_ON استفاده کنید",
+            "این جدول ارتباط کارمندان و پروژه‌ها را نشان می‌دهد",
           ],
           solution:
-            "SELECT employeeId, date, status FROM WORKS_ON WHERE date = date('now');",
-          explanation: "این کوئری حضور امروز کارمندان را نمایش می‌دهد.",
+            "SELECT Essn, Pno, Hours FROM WORKS_ON WHERE Hours IS NOT NULL;",
+          explanation:
+            "این کوئری ساعات کاری ثبت شده برای کارمندان را نمایش می‌دهد.",
           difficulty: "beginner",
           points: 20,
         },
         {
           id: "comp_basic_8",
-          title: "مدیران شرکت",
-          description: "کارمندانی که در سمت مدیریت هستند را نمایش دهید.",
-          expectedColumns: ["firstName", "lastName", "position"],
+          title: "مدیران بخش‌ها",
+          description: "مدیران هر بخش را نمایش دهید.",
+          expectedColumns: ["Dname", "Mgr_ssn"],
           hints: [
-            "از عملگر LIKE برای جست‌وجو در position استفاده کنید",
-            "کلمه 'Manager' را در سمت جست‌وجو کنید",
+            "از جدول DEPARTMENT استفاده کنید",
+            "این جدول اطلاعات مدیر هر بخش را شامل می‌شود",
           ],
-          solution:
-            "SELECT firstName, lastName, position FROM EMPLOYEE WHERE position LIKE '%Manager%';",
-          explanation: "این کوئری کارمندان دارای سمت مدیریت را شناسایی می‌کند.",
+          solution: "SELECT Dname, Mgr_ssn FROM DEPARTMENT;",
+          explanation:
+            "این کوئری مدیر هر بخش را بر اساس اطلاعات جدول DEPARTMENT شناسایی می‌کند.",
           difficulty: "beginner",
           points: 20,
         },
         {
           id: "comp_basic_9",
-          title: "پروژه‌های امسال",
-          description: "پروژه‌هایی که در سال جاری شروع شده‌اند را نمایش دهید.",
-          expectedColumns: ["name", "startDate"],
+          title: "پروژه‌های بخش تحقیق",
+          description:
+            "پروژه‌هایی که توسط بخش تحقیق (Research) مدیریت می‌شوند را نمایش دهید.",
+          expectedColumns: ["Pname", "Dnum"],
           hints: [
-            "از تابع strftime برای استخراج سال استفاده کنید",
-            "سال جاری را با strftime('%Y', 'now') بدست آورید",
+            "از JOIN بین PROJECT و DEPARTMENT استفاده کنید",
+            "بخش 'Research' را فیلتر کنید",
           ],
           solution:
-            "SELECT name, startDate FROM PROJECT WHERE strftime('%Y', startDate) = strftime('%Y', 'now');",
-          explanation: "این کوئری پروژه‌های جدید سال جاری را فیلتر می‌کند.",
+            "SELECT p.Pname, p.Dnum FROM PROJECT p JOIN DEPARTMENT d ON p.Dnum = d.Dnumber WHERE d.Dname = 'Research';",
+          explanation:
+            "این کوئری پروژه‌های بخش تحقیق را با استفاده از JOIN فیلتر می‌کند.",
           difficulty: "beginner",
           points: 25,
         },
         {
           id: "comp_basic_10",
-          title: "کارمندان بخش فناوری",
-          description: "کارمندان شاغل در بخش فناوری اطلاعات را نمایش دهید.",
-          expectedColumns: ["firstName", "lastName", "email"],
+          title: "کارمندان بخش فروش",
+          description: "کارمندان شاغل در بخش فروش را نمایش دهید.",
+          expectedColumns: ["Fname", "Lname"],
           hints: [
-            "نیاز به JOIN بین employees و departments دارید",
-            "بخش 'IT' یا 'Technology' را فیلتر کنید",
+            "نیاز به JOIN بین EMPLOYEE و DEPARTMENT دارید",
+            "بخش 'Sales' را فیلتر کنید",
           ],
           solution:
-            "SELECT e.firstName, e.lastName, e.email FROM EMPLOYEE e JOIN DEPARTMENT d ON e.departmentId = d.id WHERE d.name LIKE '%IT%' OR d.name LIKE '%Technology%';",
+            "SELECT e.Fname, e.Lname FROM EMPLOYEE e JOIN DEPARTMENT d ON e.Dno = d.Dnumber WHERE d.Dname = 'Sales';",
           explanation:
-            "این کوئری کارمندان بخش فناوری را با استفاده از JOIN شناسایی می‌کند.",
+            "این کوئری کارمندان بخش فروش را با استفاده از JOIN شناسایی می‌کند.",
           difficulty: "beginner",
           points: 25,
         },
@@ -1890,14 +1898,14 @@ export const practiceQuestions = {
           id: "comp_inter_1",
           title: "میانگین حقوق هر بخش",
           description: "میانگین حقوق کارمندان هر بخش را محاسبه کنید.",
-          expectedColumns: ["department_name", "avg_salary"],
+          expectedColumns: ["Dname", "avg_salary"],
           hints: [
-            "نیاز به JOIN بین employees و departments دارید",
+            "نیاز به JOIN بین EMPLOYEE و DEPARTMENT دارید",
             "از GROUP BY روی بخش استفاده کنید",
             "از تابع AVG استفاده کنید",
           ],
           solution:
-            "SELECT d.name AS department_name, AVG(e.salary) AS avg_salary FROM EMPLOYEE e JOIN DEPARTMENT d ON e.departmentId = d.id GROUP BY d.id, d.name;",
+            "SELECT d.Dname, AVG(e.Salary) AS avg_salary FROM EMPLOYEE e JOIN DEPARTMENT d ON e.Dno = d.Dnumber GROUP BY d.Dnumber, d.Dname;",
           explanation:
             "این کوئری میانگین حقوق کارمندان را برای هر بخش محاسبه می‌کند.",
           difficulty: "intermediate",
@@ -1907,51 +1915,49 @@ export const practiceQuestions = {
           id: "comp_inter_2",
           title: "تعداد کارمندان هر بخش",
           description: "تعداد کارمندان شاغل در هر بخش را محاسبه کنید.",
-          expectedColumns: ["department_name", "employee_count"],
+          expectedColumns: ["Dname", "employee_count"],
           hints: [
-            "از JOIN بین employees و departments استفاده کنید",
+            "از JOIN بین EMPLOYEE و DEPARTMENT استفاده کنید",
             "از GROUP BY روی بخش استفاده کنید",
             "از COUNT برای شمارش استفاده کنید",
           ],
           solution:
-            "SELECT d.name AS department_name, COUNT(e.id) AS employee_count FROM EMPLOYEE e JOIN DEPARTMENT d ON e.departmentId = d.id GROUP BY d.id, d.name;",
+            "SELECT d.Dname, COUNT(e.Ssn) AS employee_count FROM DEPARTMENT d LEFT JOIN EMPLOYEE e ON d.Dnumber = e.Dno GROUP BY d.Dnumber, d.Dname;",
           explanation: "این کوئری تعداد نیروی انسانی هر بخش را شمارش می‌کند.",
           difficulty: "intermediate",
           points: 35,
         },
         {
           id: "comp_inter_3",
-          title: "پروژه‌های با بیشترین مدت",
+          title: "پروژه‌های با بیشترین کارمند",
           description:
-            "پروژه‌هایی که بیش از 6 ماه طول کشیده‌اند را نمایش دهید.",
-          expectedColumns: ["name", "duration_months"],
+            "پروژه‌هایی که بیش از 2 کارمند روی آن کار می‌کنند را نمایش دهید.",
+          expectedColumns: ["Pname", "employee_count"],
           hints: [
-            "مدت پروژه = تاریخ پایان - تاریخ شروع",
-            "برای پروژه‌های فعال از تاریخ فعلی استفاده کنید",
-            "از julianday برای محاسبه تفاوت تاریخ استفاده کنید",
+            "از JOIN بین PROJECT و WORKS_ON استفاده کنید",
+            "از GROUP BY روی پروژه و HAVING برای فیلتر استفاده کنید",
           ],
           solution:
-            "SELECT name, ROUND((julianday(COALESCE(endDate, 'now')) - julianday(startDate)) / 30.0, 1) AS duration_months FROM PROJECT WHERE (julianday(COALESCE(endDate, 'now')) - julianday(startDate)) / 30.0 > 6;",
+            "SELECT p.Pname, COUNT(w.Essn) as employee_count FROM PROJECT p JOIN WORKS_ON w ON p.Pnumber = w.Pno GROUP BY p.Pnumber, p.Pname HAVING COUNT(w.Essn) > 2;",
           explanation:
-            "این کوئری پروژه‌های طولانی مدت را با محاسبه مدت زمان شناسایی می‌کند.",
+            "این کوئری پروژه‌های بزرگ را بر اساس تعداد کارمندان درگیر شناسایی می‌کند.",
           difficulty: "intermediate",
           points: 45,
         },
         {
           id: "comp_inter_4",
-          title: "کارمندان با حضور کامل",
+          title: "کارمندان پرکار",
           description:
-            "کارمندانی که در ماه گذشته حضور کاملی داشته‌اند را نمایش دهید.",
-          expectedColumns: ["employee_name", "attendance_days"],
+            "کارمندانی که بیش از 40 ساعت در هفته روی پروژه‌ها کار کرده‌اند.",
+          expectedColumns: ["employee_name", "total_hours"],
           hints: [
-            "نیاز به JOIN بین employees و attendances دارید",
-            "ماه گذشته را با توابع تاریخ محدود کنید",
-            "از GROUP BY روی کارمند استفاده کنید",
+            "نیاز به JOIN بین EMPLOYEE و WORKS_ON دارید",
+            "از GROUP BY روی کارمند و SUM برای ساعات استفاده کنید",
           ],
           solution:
-            "SELECT CONCAT(e.firstName, ' ', e.lastName) AS employee_name, COUNT(a.id) AS attendance_days FROM EMPLOYEE e JOIN WORKS_ON w ON e.id = a.employeeId WHERE strftime('%Y-%m', a.date) = strftime('%Y-%m', 'now', '-1 month') GROUP BY e.id, e.firstName, e.lastName HAVING COUNT(a.id) >= 20;",
+            "SELECT e.Fname || ' ' || e.Lname AS employee_name, SUM(w.Hours) AS total_hours FROM EMPLOYEE e JOIN WORKS_ON w ON e.Ssn = w.Essn GROUP BY e.Ssn, e.Fname, e.Lname HAVING SUM(w.Hours) > 40;",
           explanation:
-            "این کوئری کارمندان با حضور مناسب را در ماه گذشته شناسایی می‌کند.",
+            "این کوئری کارمندان پرکار را بر اساس مجموع ساعات کاری‌شان شناسایی می‌کند. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "intermediate",
           points: 50,
         },
@@ -1959,70 +1965,67 @@ export const practiceQuestions = {
           id: "comp_inter_5",
           title: "بالاترین حقوق هر بخش",
           description: "کارمند با بالاترین حقوق در هر بخش را نمایش دهید.",
-          expectedColumns: ["department_name", "employee_name", "max_salary"],
+          expectedColumns: ["Dname", "employee_name", "max_salary"],
           hints: [
             "از Window Function استفاده کنید",
-            "از RANK() OVER (PARTITION BY department ORDER BY salary DESC)",
+            "از RANK() OVER (PARTITION BY Dno ORDER BY Salary DESC)",
             "فقط کارمندان با رتبه 1 را انتخاب کنید",
           ],
           solution:
-            "WITH ranked_employees AS (SELECT e.firstName, e.lastName, e.salary, d.name AS department_name, RANK() OVER (PARTITION BY d.id ORDER BY e.salary DESC) AS rank FROM EMPLOYEE e JOIN DEPARTMENT d ON e.departmentId = d.id) SELECT department_name, CONCAT(firstName, ' ', lastName) AS employee_name, salary AS max_salary FROM ranked_employees WHERE rank = 1;",
+            "WITH ranked_employees AS (SELECT e.Fname, e.Lname, e.Salary, d.Dname, RANK() OVER (PARTITION BY e.Dno ORDER BY e.Salary DESC) AS rank FROM EMPLOYEE e JOIN DEPARTMENT d ON e.Dno = d.Dnumber) SELECT Dname, Fname || ' ' || Lname AS employee_name, Salary AS max_salary FROM ranked_employees WHERE rank = 1;",
           explanation:
-            "این کوئری از Window Function برای یافتن بالاترین حقوق در هر بخش استفاده می‌کند.",
+            "این کوئری از Window Function برای یافتن بالاترین حقوق در هر بخش استفاده می‌کند. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "intermediate",
           points: 45,
         },
         {
           id: "comp_inter_6",
-          title: "پروژه‌های دیرکرد",
+          title: "پروژه‌های بدون کارمند",
           description:
-            "پروژه‌هایی که از ددلاین تعیین شده عقب افتاده‌اند را نمایش دهید.",
-          expectedColumns: ["name", "deadline", "days_delayed"],
+            "پروژه‌هایی که هیچ کارمندی روی آن‌ها کار نمی‌کند را نمایش دهید.",
+          expectedColumns: ["Pname"],
           hints: [
-            "پروژه‌های فعال با deadline گذشته را پیدا کنید",
-            "تأخیر = تاریخ فعلی - deadline",
-            "از julianday برای محاسبه تفاوت استفاده کنید",
+            "از LEFT JOIN بین PROJECT و WORKS_ON استفاده کنید",
+            "از WHERE برای فیلتر کردن رکوردهای NULL استفاده کنید",
           ],
           solution:
-            "SELECT name, deadline, ROUND(julianday('now') - julianday(deadline)) AS days_delayed FROM PROJECT WHERE status = 'active' AND deadline < date('now');",
+            "SELECT p.Pname FROM PROJECT p LEFT JOIN WORKS_ON w ON p.Pnumber = w.Pno WHERE w.Essn IS NULL;",
           explanation:
-            "این کوئری پروژه‌های عقب‌افتاده را برای بررسی عملکرد شناسایی می‌کند.",
+            "این کوئری پروژه‌هایی که هنوز کارمندی به آن‌ها تخصیص نیافته را شناسایی می‌کند.",
           difficulty: "intermediate",
           points: 40,
         },
         {
           id: "comp_inter_7",
-          title: "کارمندان بدون حضور",
+          title: "کارمندان بدون پروژه",
           description:
-            "کارمندانی که در هفته گذشته هیچ حضوری نداشته‌اند را نمایش دهید.",
-          expectedColumns: ["firstName", "lastName", "email"],
+            "کارمندانی که روی هیچ پروژه‌ای کار نمی‌کنند را نمایش دهید.",
+          expectedColumns: ["Fname", "Lname"],
           hints: [
-            "از LEFT JOIN بین employees و attendances استفاده کنید",
-            "هفته گذشته را با تاریخ محدود کنید",
+            "از LEFT JOIN بین EMPLOYEE و WORKS_ON استفاده کنید",
             "شرط WHERE برای فیلتر NULL استفاده کنید",
           ],
           solution:
-            "SELECT e.firstName, e.lastName, e.email FROM EMPLOYEE e LEFT JOIN WORKS_ON w ON e.id = a.employeeId AND a.date >= date('now', '-7 days') WHERE a.id IS NULL;",
+            "SELECT e.Fname, e.Lname FROM EMPLOYEE e LEFT JOIN WORKS_ON w ON e.Ssn = w.Essn WHERE w.Pno IS NULL;",
           explanation:
-            "این کوئری کارمندان غایب را با استفاده از LEFT JOIN شناسایی می‌کند.",
+            "این کوئری کارمندان تخصیص نیافته را با استفاده از LEFT JOIN شناسایی می‌کند.",
           difficulty: "intermediate",
           points: 45,
         },
         {
           id: "comp_inter_8",
-          title: "میانگین مدت پروژه‌ها",
+          title: "میانگین ساعات کاری پروژه‌ها",
           description:
-            "میانگین مدت زمان تکمیل پروژه‌ها را برای هر وضعیت محاسبه کنید.",
-          expectedColumns: ["status", "avg_duration_days"],
+            "میانگین ساعات کاری ثبت شده برای هر پروژه را محاسبه کنید.",
+          expectedColumns: ["Pname", "avg_hours"],
           hints: [
-            "فقط پروژه‌های تمام شده را در نظر بگیرید",
-            "مدت = endDate - startDate",
-            "از GROUP BY روی status استفاده کنید",
+            "از JOIN بین PROJECT و WORKS_ON استفاده کنید",
+            "از GROUP BY روی پروژه و AVG برای میانگین استفاده کنید",
           ],
           solution:
-            "SELECT status, ROUND(AVG(julianday(endDate) - julianday(startDate)), 1) AS avg_duration_days FROM PROJECT WHERE endDate IS NOT NULL GROUP BY status;",
+            "SELECT p.Pname, AVG(w.Hours) AS avg_hours FROM PROJECT p JOIN WORKS_ON w ON p.Pnumber = w.Pno GROUP BY p.Pnumber, p.Pname;",
           explanation:
-            "این کوئری عملکرد پروژه‌ها را بر اساس وضعیت تحلیل می‌کند.",
+            "این کوئری عملکرد پروژه‌ها را بر اساس میانگین ساعات کاری تحلیل می‌کند.",
           difficulty: "intermediate",
           points: 40,
         },
@@ -2030,15 +2033,15 @@ export const practiceQuestions = {
           id: "comp_inter_9",
           title: "بخش‌های پرکار",
           description:
-            "بخش‌هایی که بیش از 10 کارمند دارند را به همراه میانگین حقوقشان نمایش دهید.",
-          expectedColumns: ["department_name", "employee_count", "avg_salary"],
+            "بخش‌هایی که بیش از 3 کارمند دارند را به همراه میانگین حقوقشان نمایش دهید.",
+          expectedColumns: ["Dname", "employee_count", "avg_salary"],
           hints: [
-            "از JOIN بین employees و departments استفاده کنید",
+            "از JOIN بین EMPLOYEE و DEPARTMENT استفاده کنید",
             "از GROUP BY و HAVING استفاده کنید",
-            "شرط تعداد کارمند > 10 در HAVING قرار دهید",
+            "شرط تعداد کارمند > 3 در HAVING قرار دهید",
           ],
           solution:
-            "SELECT d.name AS department_name, COUNT(e.id) AS employee_count, ROUND(AVG(e.salary), 0) AS avg_salary FROM EMPLOYEE e JOIN DEPARTMENT d ON e.departmentId = d.id GROUP BY d.id, d.name HAVING COUNT(e.id) > 10;",
+            "SELECT d.Dname, COUNT(e.Ssn) AS employee_count, ROUND(AVG(e.Salary), 0) AS avg_salary FROM DEPARTMENT d JOIN EMPLOYEE e ON d.Dnumber = e.Dno GROUP BY d.Dnumber, d.Dname HAVING COUNT(e.Ssn) > 3;",
           explanation:
             "این کوئری بخش‌های بزرگ شرکت را با تحلیل تعداد کارمند و حقوق شناسایی می‌کند.",
           difficulty: "intermediate",
@@ -2046,19 +2049,18 @@ export const practiceQuestions = {
         },
         {
           id: "comp_inter_10",
-          title: "نرخ حضور هر بخش",
+          title: "نرخ مشارکت در پروژه‌ها",
           description:
-            "درصد حضور کلی کارمندان هر بخش در ماه جاری را محاسبه کنید.",
-          expectedColumns: ["department_name", "attendance_rate"],
+            "درصد کارمندان هر بخش که در پروژه‌ها مشارکت دارند را محاسبه کنید.",
+          expectedColumns: ["Dname", "participation_rate"],
           hints: [
-            "نیاز به JOIN بین سه جدول employees, departments, attendances",
-            "تعداد حضور / (تعداد کارمند × روزهای کاری ماه)",
-            "روزهای کاری ماه جاری را 22 در نظر بگیرید",
+            "نیاز به JOIN بین سه جدول EMPLOYEE, DEPARTMENT, WORKS_ON",
+            "تعداد کارمندان در پروژه / کل کارمندان بخش",
           ],
           solution:
-            "SELECT d.name AS department_name, ROUND((COUNT(a.id) * 100.0) / (COUNT(DISTINCT e.id) * 22), 2) AS attendance_rate FROM DEPARTMENT d JOIN EMPLOYEE e ON d.id = e.departmentId LEFT JOIN WORKS_ON w ON e.id = a.employeeId AND strftime('%Y-%m', a.date) = strftime('%Y-%m', 'now') GROUP BY d.id, d.name;",
+            "SELECT d.Dname, ROUND(COUNT(DISTINCT w.Essn) * 100.0 / COUNT(DISTINCT e.Ssn), 2) AS participation_rate FROM DEPARTMENT d LEFT JOIN EMPLOYEE e ON d.Dnumber = e.Dno LEFT JOIN WORKS_ON w ON e.Ssn = w.Essn GROUP BY d.Dnumber, d.Dname;",
           explanation:
-            "این کوئری پیچیده نرخ حضور هر بخش را برای ارزیابی عملکرد محاسبه می‌کند.",
+            "این کوئری پیچیده نرخ مشارکت کارمندان هر بخش در پروژه‌ها را محاسبه می‌کند.",
           difficulty: "intermediate",
           points: 55,
         },
@@ -2066,18 +2068,17 @@ export const practiceQuestions = {
       advanced: [
         {
           id: "comp_adv_1",
-          title: "تحلیل حضور کارمندان",
-          description: "درصد حضور هر کارمند در ماه جاری را محاسبه کنید.",
-          expectedColumns: ["firstName", "lastName", "attendance_percentage"],
+          title: "تحلیل وابستگان کارمندان",
+          description: "تعداد وابستگان هر کارمند را محاسبه و نمایش دهید.",
+          expectedColumns: ["employee_name", "dependent_count"],
           hints: [
-            "نیاز به محاسبه تعداد روزهای حضور دارید",
-            "از توابع تاریخ برای فیلتر ماه جاری استفاده کنید",
-            "درصد را با تقسیم روزهای حضور بر کل روزهای کاری محاسبه کنید",
+            "نیاز به JOIN بین EMPLOYEE و DEPENDENT دارید",
+            "از GROUP BY روی کارمند و COUNT برای شمارش استفاده کنید",
           ],
           solution:
-            "SELECT e.firstName, e.lastName, (COUNT(a.id) * 100.0 / 22) AS attendance_percentage FROM EMPLOYEE e LEFT JOIN WORKS_ON w ON e.id = a.employeeId AND strftime('%Y-%m', a.date) = strftime('%Y-%m', 'now') GROUP BY e.id, e.firstName, e.lastName;",
+            "SELECT e.Fname || ' ' || e.Lname AS employee_name, COUNT(d.Dependent_name) AS dependent_count FROM EMPLOYEE e LEFT JOIN DEPENDENT d ON e.Ssn = d.Essn GROUP BY e.Ssn, e.Fname, e.Lname ORDER BY dependent_count DESC;",
           explanation:
-            "این کوئری پیچیده درصد حضور هر کارمند را بر اساس 22 روز کاری در ماه محاسبه می‌کند.",
+            "این کوئری تعداد وابستگان هر کارمند را شمارش می‌کند. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "advanced",
           points: 65,
         },
@@ -2086,68 +2087,49 @@ export const practiceQuestions = {
           title: "رتبه‌بندی کارمندان بر اساس حقوق",
           description:
             "کارمندان را در هر بخش بر اساس حقوق رتبه‌بندی کرده و رتبه 3 اول را نمایش دهید.",
-          expectedColumns: [
-            "department_name",
-            "employee_name",
-            "salary",
-            "rank",
-          ],
+          expectedColumns: ["Dname", "employee_name", "Salary", "rank"],
           hints: [
             "از Window Function استفاده کنید",
-            "از RANK() OVER (PARTITION BY department ORDER BY salary DESC)",
+            "از RANK() OVER (PARTITION BY Dno ORDER BY Salary DESC)",
             "فقط رتبه‌های 1، 2، 3 را انتخاب کنید",
           ],
           solution:
-            "WITH ranked_salaries AS (SELECT e.firstName, e.lastName, e.salary, d.name AS department_name, RANK() OVER (PARTITION BY d.id ORDER BY e.salary DESC) AS rank FROM EMPLOYEE e JOIN DEPARTMENT d ON e.departmentId = d.id) SELECT department_name, CONCAT(firstName, ' ', lastName) AS employee_name, salary, rank FROM ranked_salaries WHERE rank <= 3 ORDER BY department_name, rank;",
+            "WITH ranked_salaries AS (SELECT e.Fname, e.Lname, e.Salary, d.Dname, RANK() OVER (PARTITION BY e.Dno ORDER BY e.Salary DESC) AS rank FROM EMPLOYEE e JOIN DEPARTMENT d ON e.Dno = d.Dnumber) SELECT Dname, Fname || ' ' || Lname AS employee_name, Salary, rank FROM ranked_salaries WHERE rank <= 3 ORDER BY Dname, rank;",
           explanation:
-            "این کوئری از Window Function برای رتبه‌بندی حقوق در هر بخش استفاده می‌کند.",
+            "این کوئری از Window Function برای رتبه‌بندی حقوق در هر بخش استفاده می‌کند. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "advanced",
           points: 75,
         },
         {
           id: "comp_adv_3",
-          title: "تحلیل روند حضور ماهانه",
-          description:
-            "روند تغییرات حضور کارمندان را در 6 ماه گذشته تحلیل کنید.",
-          expectedColumns: [
-            "month",
-            "year",
-            "total_attendance",
-            "previous_month",
-            "growth_rate",
-          ],
+          title: "تحلیل ساختار مدیریت",
+          description: "برای هر کارمند، نام مدیر مستقیم او را نمایش دهید.",
+          expectedColumns: ["employee_name", "supervisor_name"],
           hints: [
-            "از Window Function LAG استفاده کنید",
-            "ابتدا حضور ماهانه را محاسبه کنید",
-            "سپس تغییرات نسبت به ماه قبل را بدست آورید",
+            "از self-join روی جدول EMPLOYEE استفاده کنید",
+            "یک جدول برای کارمند و یک جدول برای مدیر در نظر بگیرید",
           ],
           solution:
-            "WITH monthly_attendance AS (SELECT strftime('%Y-%m', date) AS month_year, strftime('%m', date) AS month, strftime('%Y', date) AS year, COUNT(*) AS total_attendance FROM WORKS_ON WHERE date >= date('now', '-6 months') GROUP BY strftime('%Y-%m', date)) SELECT month, year, total_attendance, LAG(total_attendance) OVER (ORDER BY month_year) AS previous_month, ROUND(((total_attendance - LAG(total_attendance) OVER (ORDER BY month_year)) * 100.0 / LAG(total_attendance) OVER (ORDER BY month_year)), 2) AS growth_rate FROM monthly_attendance;",
+            "SELECT e.Fname || ' ' || e.Lname AS employee_name, s.Fname || ' ' || s.Lname AS supervisor_name FROM EMPLOYEE e LEFT JOIN EMPLOYEE s ON e.Super_ssn = s.Ssn;",
           explanation:
-            "این کوئری از CTE و Window Function برای تحلیل روند حضور استفاده می‌کند.",
+            "این کوئری ساختار سلسله مراتبی شرکت را با استفاده از self-join نمایش می‌دهد. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "advanced",
           points: 80,
         },
         {
           id: "comp_adv_4",
-          title: "شناسایی کارمندان پرکار",
+          title: "شناسایی کارمندان کلیدی",
           description:
-            "کارمندانی که بیش از میانگین شرکت کار می‌کنند را شناسایی کنید.",
-          expectedColumns: [
-            "employee_name",
-            "monthly_hours",
-            "avg_company_hours",
-            "extra_hours",
-          ],
+            "کارمندانی که هم مدیر هستند و هم در پروژه‌ها مشارکت دارند.",
+          expectedColumns: ["employee_name", "project_count"],
           hints: [
-            "فرض کنید هر روز حضور 8 ساعت کار است",
-            "میانگین ساعت کاری شرکت را محاسبه کنید",
-            "کارمندان بالاتر از میانگین را پیدا کنید",
+            "کارمندان مدیر را از جدول DEPARTMENT پیدا کنید",
+            "مشارکت در پروژه را از WORKS_ON بررسی کنید",
           ],
           solution:
-            "WITH employee_hours AS (SELECT e.id, CONCAT(e.firstName, ' ', e.lastName) AS employee_name, COUNT(a.id) * 8 AS monthly_hours FROM EMPLOYEE e LEFT JOIN WORKS_ON w ON e.id = a.employeeId AND strftime('%Y-%m', a.date) = strftime('%Y-%m', 'now') GROUP BY e.id, e.firstName, e.lastName), company_avg AS (SELECT AVG(monthly_hours) AS avg_hours FROM employee_hours) SELECT eh.employee_name, eh.monthly_hours, ROUND(ca.avg_hours, 1) AS avg_company_hours, eh.monthly_hours - ca.avg_hours AS extra_hours FROM employee_hours eh CROSS JOIN company_avg ca WHERE eh.monthly_hours > ca.avg_hours ORDER BY extra_hours DESC;",
+            "SELECT e.Fname || ' ' || e.Lname AS employee_name, COUNT(w.Pno) AS project_count FROM EMPLOYEE e JOIN WORKS_ON w ON e.Ssn = w.Essn WHERE e.Ssn IN (SELECT Mgr_ssn FROM DEPARTMENT) GROUP BY e.Ssn, e.Fname, e.Lname;",
           explanation:
-            "این کوئری کارمندان فعال‌تر از میانگین شرکت را شناسایی می‌کند.",
+            "این کوئری کارمندان کلیدی که نقش مدیریتی و اجرایی دارند را شناسایی می‌کند. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "advanced",
           points: 85,
         },
@@ -2155,45 +2137,43 @@ export const practiceQuestions = {
           id: "comp_adv_5",
           title: "تحلیل بهره‌وری پروژه‌ها",
           description:
-            "بهره‌وری هر پروژه را بر اساس مدت زمان و تعداد کارمندان درگیر محاسبه کنید.",
+            "بهره‌وری هر پروژه را بر اساس مجموع ساعات کاری و تعداد کارمندان محاسبه کنید.",
           expectedColumns: [
-            "project_name",
-            "duration_days",
+            "Pname",
+            "total_hours",
             "team_size",
             "efficiency_score",
           ],
           hints: [
-            "فرض کنید هر پروژه team متشکل از کارمندان مختلف دارد",
-            "بهره‌وری = (100 / مدت زمان) × (100 / تعداد تیم)",
-            "از فرمول ساده برای محاسبه امتیاز استفاده کنید",
+            "مجموع ساعات و تعداد کارمندان را از WORKS_ON بگیرید",
+            "بهره‌وری = مجموع ساعات / تعداد کارمندان",
           ],
           solution:
-            "WITH project_metrics AS (SELECT p.name AS project_name, COALESCE(julianday(p.endDate) - julianday(p.startDate), julianday('now') - julianday(p.startDate)) AS duration_days, (SELECT COUNT(DISTINCT e.departmentId) FROM EMPLOYEE e LIMIT 1) + (p.id % 5) AS team_size FROM PROJECT p WHERE p.startDate IS NOT NULL), efficiency_calc AS (SELECT project_name, ROUND(duration_days, 0) AS duration_days, team_size, ROUND((1000.0 / (duration_days + 1)) * (10.0 / (team_size + 1)), 2) AS efficiency_score FROM project_metrics) SELECT * FROM efficiency_calc ORDER BY efficiency_score DESC;",
+            "WITH project_metrics AS (SELECT p.Pname, SUM(w.Hours) AS total_hours, COUNT(DISTINCT w.Essn) AS team_size FROM PROJECT p JOIN WORKS_ON w ON p.Pnumber = w.Pno GROUP BY p.Pnumber, p.Pname) SELECT Pname, total_hours, team_size, ROUND(total_hours / NULLIF(team_size, 0), 2) AS efficiency_score FROM project_metrics ORDER BY efficiency_score DESC;",
           explanation:
-            "این کوئری پیچیده بهره‌وری پروژه‌ها را بر اساس معیارهای مختلف ارزیابی می‌کند.",
+            "این کوئری بهره‌وری پروژه‌ها را بر اساس معیارهای مختلف ارزیابی می‌کند.",
           difficulty: "advanced",
           points: 90,
         },
         {
           id: "comp_adv_6",
-          title: "پیش‌بینی ترک کار کارمندان",
+          title: "پیش‌بینی حقوق کارمندان",
           description:
-            "کارمندانی که احتمال ترک کار بالایی دارند را بر اساس الگوی حضور شناسایی کنید.",
+            "حقوق هر کارمند را بر اساس میانگین حقوق بخش و سابقه کار پیش‌بینی کنید (مثال ساده).",
           expectedColumns: [
             "employee_name",
-            "recent_attendance",
-            "overall_attendance",
-            "risk_level",
+            "current_salary",
+            "predicted_salary",
+            "difference",
           ],
           hints: [
-            "حضور 2 ماه اخیر با کل دوره کاری مقایسه کنید",
-            "اگر حضور اخیر 20% کمتر از میانگین باشد، ریسک بالا",
-            "از CASE WHEN برای تعیین سطح ریسک استفاده کنید",
+            "از میانگین حقوق بخش به عنوان پایه استفاده کنید",
+            "به ازای هر سال سابقه، 2% به حقوق اضافه کنید",
           ],
           solution:
-            "WITH attendance_analysis AS (SELECT e.id, CONCAT(e.firstName, ' ', e.lastName) AS employee_name, COUNT(CASE WHEN a.date >= date('now', '-2 months') THEN 1 END) AS recent_attendance, COUNT(a.id) AS total_attendance, COUNT(CASE WHEN a.date >= date('now', '-2 months') THEN 1 END) / 2.0 AS recent_monthly_avg, COUNT(a.id) / MAX(1, ROUND((julianday('now') - julianday(e.hireDate)) / 30.0)) AS overall_monthly_avg FROM EMPLOYEE e LEFT JOIN WORKS_ON w ON e.id = a.employeeId GROUP BY e.id, e.firstName, e.lastName, e.hireDate) SELECT employee_name, recent_attendance, total_attendance, CASE WHEN recent_monthly_avg < overall_monthly_avg * 0.8 THEN 'بالا' WHEN recent_monthly_avg < overall_monthly_avg * 0.9 THEN 'متوسط' ELSE 'پایین' END AS risk_level FROM attendance_analysis WHERE total_attendance > 10 ORDER BY recent_monthly_avg / NULLIF(overall_monthly_avg, 0) ASC;",
+            "WITH dept_avg_salary AS (SELECT Dno, AVG(Salary) AS avg_dept_salary FROM EMPLOYEE GROUP BY Dno), employee_service AS (SELECT Ssn, Fname, Lname, Salary, Dno, (julianday('now') - julianday(Bdate)) / 365.25 - 25 AS years_of_service FROM EMPLOYEE) SELECT es.Fname || ' ' || es.Lname AS employee_name, es.Salary AS current_salary, ROUND(das.avg_dept_salary * (1 + (es.years_of_service * 0.02))) AS predicted_salary, ROUND(es.Salary - (das.avg_dept_salary * (1 + (es.years_of_service * 0.02)))) AS difference FROM employee_service es JOIN dept_avg_salary das ON es.Dno = das.Dno ORDER BY difference DESC;",
           explanation:
-            "این کوئری پیشرفته الگوهای حضور را تحلیل کرده و کارمندان در معرض ریسک را شناسایی می‌کند.",
+            "این کوئری پیشرفته یک مدل ساده برای پیش‌بینی حقوق بر اساس سابقه و بخش ارائه می‌دهد. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "advanced",
           points: 95,
         },
@@ -2201,20 +2181,20 @@ export const practiceQuestions = {
           id: "comp_adv_7",
           title: "تحلیل شبکه همکاری",
           description:
-            "کارمندانی که بیشترین همکاری بین بخشی را دارند شناسایی کنید.",
+            "کارمندانی که بیشترین همکاری با دیگران را در پروژه‌ها دارند شناسایی کنید.",
           expectedColumns: [
-            "department1",
-            "department2",
+            "employee1_name",
+            "employee2_name",
             "collaboration_score",
           ],
           hints: [
-            "فرض کنید کارمندان بخش‌های مختلف در پروژه‌های مشترک کار می‌کنند",
+            "از self-join روی جدول WORKS_ON استفاده کنید",
             "همکاری = تعداد پروژه‌های مشترک",
-            "از self join روی departments استفاده کنید",
           ],
           solution:
-            "WITH dept_projects AS (SELECT d.name AS dept_name, d.id AS dept_id, p.id AS project_id FROM DEPARTMENT d JOIN EMPLOYEE e ON d.id = e.departmentId JOIN PROJECT p ON e.id % 3 = p.id % 3), collaboration_matrix AS (SELECT dp1.dept_name AS department1, dp2.dept_name AS department2, COUNT(*) AS shared_projects FROM dept_projects dp1 JOIN dept_projects dp2 ON dp1.project_id = dp2.project_id AND dp1.dept_id < dp2.dept_id GROUP BY dp1.dept_name, dp2.dept_name) SELECT department1, department2, shared_projects AS collaboration_score FROM collaboration_matrix WHERE shared_projects > 0 ORDER BY collaboration_score DESC;",
-          explanation: "این کوئری شبکه همکاری بین بخش‌ها را تحلیل می‌کند.",
+            "WITH collaborations AS (SELECT w1.Essn AS e1_ssn, w2.Essn AS e2_ssn, COUNT(*) AS shared_projects FROM WORKS_ON w1 JOIN WORKS_ON w2 ON w1.Pno = w2.Pno AND w1.Essn < w2.Essn GROUP BY w1.Essn, w2.Essn) SELECT e1.Fname || ' ' || e1.Lname AS employee1_name, e2.Fname || ' ' || e2.Lname AS employee2_name, c.shared_projects AS collaboration_score FROM collaborations c JOIN EMPLOYEE e1 ON c.e1_ssn = e1.Ssn JOIN EMPLOYEE e2 ON c.e2_ssn = e2.Ssn ORDER BY collaboration_score DESC LIMIT 10;",
+          explanation:
+            "این کوئری شبکه همکاری بین کارمندان را تحلیل می‌کند. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "advanced",
           points: 85,
         },
@@ -2222,45 +2202,33 @@ export const practiceQuestions = {
           id: "comp_adv_8",
           title: "بهینه‌سازی تخصیص منابع",
           description:
-            "پیشنهاد بهینه برای تخصیص کارمندان به پروژه‌های جدید ارائه دهید.",
-          expectedColumns: [
-            "department_name",
-            "available_capacity",
-            "utilization_rate",
-            "recommendation",
-          ],
+            "بخش‌هایی که کمترین بار کاری (میانگین ساعات) را دارند شناسایی کنید.",
+          expectedColumns: ["Dname", "avg_hours_per_employee"],
           hints: [
-            "ظرفیت = تعداد کارمند × ساعت کاری",
-            "استفاده = پروژه‌های فعال / کل ظرفیت",
-            "توصیه بر اساس درصد استفاده",
+            "مجموع ساعات کاری هر بخش را محاسبه کنید",
+            "مجموع ساعات را بر تعداد کارمندان بخش تقسیم کنید",
           ],
           solution:
-            "WITH dept_capacity AS (SELECT d.name AS department_name, COUNT(e.id) AS employee_count, COUNT(e.id) * 8 * 22 AS monthly_capacity FROM DEPARTMENT d LEFT JOIN EMPLOYEE e ON d.id = e.departmentId GROUP BY d.id, d.name), dept_utilization AS (SELECT dc.department_name, dc.employee_count, dc.monthly_capacity, COUNT(p.id) * 100 AS current_load FROM dept_capacity dc LEFT JOIN EMPLOYEE e ON dc.department_name = (SELECT d2.name FROM DEPARTMENT d2 WHERE d2.id = e.departmentId) LEFT JOIN PROJECT p ON e.id % 2 = p.id % 2 AND p.status = 'active' GROUP BY dc.department_name, dc.employee_count, dc.monthly_capacity) SELECT department_name, monthly_capacity - current_load AS available_capacity, ROUND((current_load * 100.0 / monthly_capacity), 2) AS utilization_rate, CASE WHEN (current_load * 100.0 / monthly_capacity) > 80 THEN 'نیاز به نیروی بیشتر' WHEN (current_load * 100.0 / monthly_capacity) < 50 THEN 'ظرفیت اضافی موجود' ELSE 'تخصیص مناسب' END AS recommendation FROM dept_utilization ORDER BY utilization_rate DESC;",
+            "WITH department_hours AS (SELECT d.Dname, d.Dnumber, SUM(COALESCE(w.Hours, 0)) AS total_hours FROM DEPARTMENT d LEFT JOIN EMPLOYEE e ON d.Dnumber = e.Dno LEFT JOIN WORKS_ON w ON e.Ssn = w.Essn GROUP BY d.Dnumber, d.Dname), department_employees AS (SELECT Dno, COUNT(*) AS employee_count FROM EMPLOYEE GROUP BY Dno) SELECT dh.Dname, ROUND(dh.total_hours / NULLIF(de.employee_count, 0), 2) AS avg_hours_per_employee FROM department_hours dh JOIN department_employees de ON dh.Dnumber = de.Dno ORDER BY avg_hours_per_employee ASC;",
           explanation:
-            "این کوئری بهینه‌سازی منابع انسانی را برای مدیریت پروژه‌ها ارائه می‌دهد.",
+            "این کوئری بهینه‌سازی منابع انسانی را با شناسایی بخش‌های با بار کاری کمتر ارائه می‌دهد.",
           difficulty: "advanced",
           points: 90,
         },
         {
           id: "comp_adv_9",
-          title: "تحلیل چرخه حیات کارمندان",
+          title: "تحلیل چرخه عمر پروژه‌ها",
           description:
-            "مراحل مختلف دوره کاری کارمندان را از استخدام تا بازنشستگی تحلیل کنید.",
-          expectedColumns: [
-            "employee_name",
-            "tenure_months",
-            "lifecycle_stage",
-            "performance_trend",
-          ],
+            "میانگین تعداد کارمندان و ساعات کاری برای پروژه‌های هر بخش را محاسبه کنید.",
+          expectedColumns: ["Dname", "avg_team_size", "avg_project_hours"],
           hints: [
-            "مدت کار = تاریخ فعلی - تاریخ استخدام",
-            "مراحل: جدید (< 6 ماه)، میانی (6-24 ماه)، باتجربه (> 24 ماه)",
-            "روند عملکرد بر اساس حضور اخیر",
+            "از چندین JOIN و агреذور استفاده کنید",
+            "ابتدا متریک‌های هر پروژه را محاسبه کنید، سپس میانگین هر بخش را بگیرید",
           ],
           solution:
-            "WITH employee_lifecycle AS (SELECT e.id, CONCAT(e.firstName, ' ', e.lastName) AS employee_name, ROUND((julianday('now') - julianday(e.hireDate)) / 30.0, 1) AS tenure_months, COUNT(CASE WHEN a.date >= date('now', '-3 months') THEN 1 END) AS recent_attendance, COUNT(CASE WHEN a.date >= date('now', '-6 months') AND a.date < date('now', '-3 months') THEN 1 END) AS previous_attendance FROM EMPLOYEE e LEFT JOIN WORKS_ON w ON e.id = a.employeeId GROUP BY e.id, e.firstName, e.lastName, e.hireDate), stage_analysis AS (SELECT employee_name, tenure_months, CASE WHEN tenure_months < 6 THEN 'کارمند جدید' WHEN tenure_months < 24 THEN 'کارمند میانی' WHEN tenure_months < 60 THEN 'کارمند باتجربه' ELSE 'کارمند ارشد' END AS lifecycle_stage, CASE WHEN recent_attendance > previous_attendance THEN 'صعودی' WHEN recent_attendance < previous_attendance THEN 'نزولی' ELSE 'ثابت' END AS performance_trend FROM employee_lifecycle) SELECT * FROM stage_analysis ORDER BY tenure_months DESC;",
+            "WITH project_stats AS (SELECT p.Dnum, COUNT(DISTINCT w.Essn) AS team_size, SUM(w.Hours) AS total_hours FROM PROJECT p JOIN WORKS_ON w ON p.Pnumber = w.Pno GROUP BY p.Pnumber, p.Dnum) SELECT d.Dname, ROUND(AVG(ps.team_size), 2) AS avg_team_size, ROUND(AVG(ps.total_hours), 2) AS avg_project_hours FROM DEPARTMENT d JOIN project_stats ps ON d.Dnumber = ps.Dnum GROUP BY d.Dnumber, d.Dname;",
           explanation:
-            "این کوئری پیشرفته چرخه حیات کارمندان را برای مدیریت منابع انسانی تحلیل می‌کند.",
+            "این کوئری پیشرفته چرخه عمر پروژه‌ها را برای تحلیل عملکرد بخش‌ها تحلیل می‌کند.",
           difficulty: "advanced",
           points: 100,
         },
@@ -2268,25 +2236,24 @@ export const practiceQuestions = {
           id: "comp_adv_10",
           title: "سیستم هوشمند ارزیابی عملکرد",
           description:
-            "امتیاز کلی عملکرد هر کارمند را بر اساس حضور، قدمت کار و مشارکت در پروژه‌ها محاسبه کنید.",
+            "امتیاز کلی عملکرد هر کارمند را بر اساس حقوق، سابقه کار و مشارکت در پروژه‌ها محاسبه کنید.",
           expectedColumns: [
             "employee_name",
-            "attendance_score",
+            "salary_score",
             "tenure_score",
             "project_score",
             "total_score",
             "grade",
           ],
           hints: [
-            "امتیاز حضور = (حضور ماهانه / 22) × 40",
-            "امتیاز قدمت = min(سال‌های کار × 10, 30)",
-            "امتیاز پروژه = (تعداد پروژه‌ها × 5) تا حداکثر 30",
-            "نمره کل = مجموع امتیازها",
+            "امتیاز حقوق = (حقوق / میانگین حقوق بخش) × 40",
+            "امتیاز سابقه = min(سال‌های کار × 5, 30)",
+            "امتیاز پروژه = (مجموع ساعات / 10) تا حداکثر 30",
           ],
           solution:
-            "WITH performance_metrics AS (SELECT e.id, CONCAT(e.firstName, ' ', e.lastName) AS employee_name, COUNT(CASE WHEN a.date >= date('now', '-1 month') THEN 1 END) AS monthly_attendance, ROUND((julianday('now') - julianday(e.hireDate)) / 365.0, 1) AS years_of_service, (e.id % 5) + 1 AS project_count FROM EMPLOYEE e LEFT JOIN WORKS_ON w ON e.id = a.employeeId GROUP BY e.id, e.firstName, e.lastName, e.hireDate), score_calculation AS (SELECT employee_name, ROUND((monthly_attendance * 40.0 / 22), 1) AS attendance_score, ROUND(LEAST(years_of_service * 10, 30), 1) AS tenure_score, ROUND(LEAST(project_count * 5, 30), 1) AS project_score FROM performance_metrics), final_evaluation AS (SELECT employee_name, attendance_score, tenure_score, project_score, ROUND(attendance_score + tenure_score + project_score, 1) AS total_score FROM score_calculation) SELECT employee_name, attendance_score, tenure_score, project_score, total_score, CASE WHEN total_score >= 90 THEN 'عالی' WHEN total_score >= 75 THEN 'خوب' WHEN total_score >= 60 THEN 'قابل قبول' ELSE 'نیاز به بهبود' END AS grade FROM final_evaluation ORDER BY total_score DESC;",
+            "WITH performance_metrics AS (SELECT e.Ssn, e.Fname, e.Lname, e.Salary, e.Dno, (julianday('now') - julianday(e.Bdate)) / 365.25 - 25 AS years_of_service, SUM(COALESCE(w.Hours, 0)) AS total_hours FROM EMPLOYEE e LEFT JOIN WORKS_ON w ON e.Ssn = w.Essn GROUP BY e.Ssn, e.Fname, e.Lname, e.Salary, e.Dno, e.Bdate), dept_avg_salary AS (SELECT Dno, AVG(Salary) AS avg_salary FROM EMPLOYEE GROUP BY Dno), score_calculation AS (SELECT pm.Fname, pm.Lname, ROUND((pm.Salary / das.avg_salary) * 40, 1) AS salary_score, ROUND(LEAST(pm.years_of_service * 5, 30), 1) AS tenure_score, ROUND(LEAST(pm.total_hours / 10, 30), 1) AS project_score FROM performance_metrics pm JOIN dept_avg_salary das ON pm.Dno = das.Dno), final_evaluation AS (SELECT Fname, Lname, salary_score, tenure_score, project_score, ROUND(salary_score + tenure_score + project_score, 1) AS total_score FROM score_calculation) SELECT Fname || ' ' || Lname AS employee_name, salary_score, tenure_score, project_score, total_score, CASE WHEN total_score >= 90 THEN 'عالی' WHEN total_score >= 75 THEN 'خوب' WHEN total_score >= 60 THEN 'قابل قبول' ELSE 'نیاز به بهبود' END AS grade FROM final_evaluation ORDER BY total_score DESC;",
           explanation:
-            "این کوئری پیچیده سیستم جامع ارزیابی عملکرد کارمندان را پیاده‌سازی می‌کند.",
+            "این کوئری پیچیده سیستم جامع ارزیابی عملکرد کارمندان را پیاده‌سازی می‌کند. در SQLite برای اتصال رشته‌ها از || استفاده می‌شود.",
           difficulty: "advanced",
           points: 100,
         },
