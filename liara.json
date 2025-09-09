@@ -9,9 +9,5 @@
       "DATABASE_URL": "file:./prisma/dev.db"
     }
   },
-  "env": {
-    "NODE_ENV": "production",
-    "DATABASE_URL": "file:./prisma/dev.db"
-  },
   "disks": []
 }
