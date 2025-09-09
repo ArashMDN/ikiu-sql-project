@@ -3,11 +3,11 @@
   "app": "sql-ikiu",
   "port": 3000,
   "build": {
-    "location": "iran",
-    "env": {
-      "NODE_ENV": "production",
-      "DATABASE_URL": "file:./prisma/dev.db"
-    }
+    "location": "iran"
+  },
+  "env": {
+    "NODE_ENV": "production",
+    "DATABASE_URL": "file:./prisma/dev.db"
   },
   "disks": []
 }
